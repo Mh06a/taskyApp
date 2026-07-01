@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:second_project/services/preferences_manager.dart';
+import 'package:second_project/core/services/preferences_manager.dart';
 
 class ThemeController {
   static final ValueNotifier<ThemeMode> valueNotifier = ValueNotifier(

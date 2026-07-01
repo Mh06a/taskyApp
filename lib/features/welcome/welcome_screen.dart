@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:second_project/Views/main_screen.dart';
-import 'package:second_project/Widgets/custom_button.dart';
-import 'package:second_project/Widgets/textFormField.dart';
-import 'package:second_project/services/preferences_manager.dart';
+import 'package:second_project/features/navigation/main_screen.dart';
+import 'package:second_project/core/widgets/custom_button.dart';
+import 'package:second_project/core/widgets/textFormField.dart';
+import 'package:second_project/core/services/preferences_manager.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeScreen extends StatelessWidget {

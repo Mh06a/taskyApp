@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:second_project/Views/main_screen.dart';
-import 'package:second_project/Views/welcome_screen.dart';
-import 'package:second_project/services/preferences_manager.dart';
-import 'package:second_project/themes/dark_theme.dart';
-import 'package:second_project/themes/light_theme.dart';
-import 'package:second_project/themes/theme_controller.dart';
+import 'package:second_project/features/navigation/main_screen.dart';
+import 'package:second_project/features/welcome/welcome_screen.dart';
+import 'package:second_project/core/services/preferences_manager.dart';
+import 'package:second_project/core/themes/dark_theme.dart';
+import 'package:second_project/core/themes/light_theme.dart';
+import 'package:second_project/core/themes/theme_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

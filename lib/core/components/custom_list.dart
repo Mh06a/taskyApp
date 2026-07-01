@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:second_project/Widgets/custom_task_item.dart';
+import 'package:second_project/core/components/custom_task_item.dart';
 import 'package:second_project/models/task.dart';
 
 class CustomList extends StatelessWidget {

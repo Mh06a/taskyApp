@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:second_project/Widgets/custom_add_buttton.dart';
-import 'package:second_project/Widgets/textFormField.dart';
+import 'package:second_project/core/widgets/custom_add_buttton.dart';
+import 'package:second_project/core/widgets/textFormField.dart';
 
 class CustomAddEditTask extends StatelessWidget {
   //step1 ----> here Create Var for class :

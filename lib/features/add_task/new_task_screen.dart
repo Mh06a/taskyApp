@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:second_project/Widgets/custom_add_edit_task.dart';
+import 'package:second_project/core/widgets/custom_add_edit_task.dart';
 import 'package:second_project/models/task.dart';
-import 'package:second_project/services/preferences_manager.dart';
+import 'package:second_project/core/services/preferences_manager.dart';
 
 class AddNewTask extends StatefulWidget {
   const AddNewTask({super.key});

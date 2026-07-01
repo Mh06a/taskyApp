@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:second_project/Widgets/custom_add_edit_task.dart';
-import 'package:second_project/Widgets/custom_check_box.dart';
-import 'package:second_project/enums/task_item_actions_enum.dart';
+import 'package:second_project/core/widgets/custom_add_edit_task.dart';
+import 'package:second_project/core/widgets/custom_check_box.dart';
+import 'package:second_project/core/enums/task_item_actions_enum.dart';
 import 'package:second_project/models/task.dart';
-import 'package:second_project/services/preferences_manager.dart';
-import 'package:second_project/themes/theme_controller.dart';
+import 'package:second_project/core/services/preferences_manager.dart';
+import 'package:second_project/core/themes/theme_controller.dart';
 
 class CustomTaskItem extends StatelessWidget {
   const CustomTaskItem({

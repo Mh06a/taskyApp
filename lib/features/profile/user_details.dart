@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:second_project/Widgets/custom_button.dart';
-import 'package:second_project/Widgets/textFormField.dart';
-import 'package:second_project/services/preferences_manager.dart';
+import 'package:second_project/core/widgets/custom_button.dart';
+import 'package:second_project/core/widgets/textFormField.dart';
+import 'package:second_project/core/services/preferences_manager.dart';
 
 class UserDetails extends StatefulWidget {
   UserDetails({super.key});

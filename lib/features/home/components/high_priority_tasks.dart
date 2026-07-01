@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:second_project/Views/high_priority_screen.dart';
-import 'package:second_project/Widgets/custom_check_box.dart';
+import 'package:second_project/features/tasks/high_priority_screen.dart';
+import 'package:second_project/core/widgets/custom_check_box.dart';
 import 'package:second_project/models/task.dart';
-import 'package:second_project/themes/theme_controller.dart';
+import 'package:second_project/core/themes/theme_controller.dart';
 
 class HighPriorityTasks extends StatelessWidget {
   const HighPriorityTasks({

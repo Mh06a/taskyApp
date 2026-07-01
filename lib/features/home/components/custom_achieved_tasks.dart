@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:second_project/themes/theme_controller.dart';
+import 'package:second_project/core/themes/theme_controller.dart';
 
 // ignore: must_be_immutable
 class CustomAchievedTasks extends StatelessWidget {
