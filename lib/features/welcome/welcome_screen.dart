@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/navigation/main_screen.dart';
 import 'package:second_project/core/widgets/custom_button.dart';
 import 'package:second_project/core/widgets/textFormField.dart';
@@ -101,7 +102,7 @@ class WelcomeScreen extends StatelessWidget {
                               if (nameKey.currentState?.validate() ?? false) {
                                 // here I will Use SharedPreferences :
                                 await PreferencesManager().setString(
-                                  "username",
+                                  StorageKey.username,
                                   nameController.value.text,
                                 );
                                 Navigator.pushReplacement(

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/core/widgets/custom_add_edit_task.dart';
 import 'package:second_project/core/widgets/custom_check_box.dart';
 import 'package:second_project/core/enums/task_item_actions_enum.dart';
@@ -182,7 +183,9 @@ class CustomTaskItem extends StatelessWidget {
               buttonText: "Edit",
               onPressed: () async {
                 if (key.currentState?.validate() ?? false) {
-                  final taskJson = PreferencesManager().getString("tasks");
+                  final taskJson = PreferencesManager().getString(
+                    StorageKey.taskName,
+                  );
 
                   List<dynamic> listTask = [];
 
@@ -204,7 +207,10 @@ class CustomTaskItem extends StatelessWidget {
                   listTask[index] = newModel.toMap();
 
                   final taskEncode = jsonEncode(listTask);
-                  await PreferencesManager().setString("tasks", taskEncode);
+                  await PreferencesManager().setString(
+                    StorageKey.taskName,
+                    taskEncode,
+                  );
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).pop(true);
                 }

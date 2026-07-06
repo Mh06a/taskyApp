@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/profile/user_details.dart';
 import 'package:second_project/features/welcome/welcome_screen.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
@@ -31,9 +32,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   //step4 ---- create a function to load username :
   void _loadUserData() async {
     setState(() {
-      username = PreferencesManager().getString("username") ?? "Guset";
+      username = PreferencesManager().getString(StorageKey.username) ?? "Guset";
       motivationQuote =
-          PreferencesManager().getString("motivation_quote") ?? "Nothing";
+          PreferencesManager().getString(StorageKey.motivationQuote) ??
+          "Nothing";
     });
   }
 
@@ -193,9 +195,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             onTap: () async {
-              PreferencesManager().remove("username");
-              PreferencesManager().remove("motivation_quote");
-              PreferencesManager().remove("tasks");
+              PreferencesManager().remove(StorageKey.username);
+              PreferencesManager().remove(StorageKey.motivationQuote);
+              PreferencesManager().remove(StorageKey.taskName);
               await Navigator.pushAndRemoveUntil(
                 // ignore: use_build_context_synchronously
                 context,

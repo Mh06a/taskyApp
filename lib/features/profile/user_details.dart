@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/core/widgets/custom_button.dart';
 import 'package:second_project/core/widgets/textFormField.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
@@ -25,9 +26,10 @@ class _UserDetailsState extends State<UserDetails> {
 
   //step4 ---- create a function to load user data :
   void loadUserData() async {
-    nameController.text = PreferencesManager().getString("username") ?? "null";
+    nameController.text =
+        PreferencesManager().getString(StorageKey.username) ?? "null";
     motivationController.text =
-        PreferencesManager().getString("motivation_quote") ?? "null";
+        PreferencesManager().getString(StorageKey.motivationQuote) ?? "null";
   }
 
   //step2 ---- Create The page :
@@ -62,11 +64,11 @@ class _UserDetailsState extends State<UserDetails> {
                 onPressed: () async {
                   if (_key.currentState!.validate()) {
                     await PreferencesManager().setString(
-                      "username",
+                      StorageKey.username,
                       nameController.value.text,
                     );
                     await PreferencesManager().setString(
-                      "motivation_quote",
+                      StorageKey.motivationQuote,
                       motivationController.value.text,
                     );
 

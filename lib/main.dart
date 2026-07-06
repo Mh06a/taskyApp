@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/navigation/main_screen.dart';
 import 'package:second_project/features/welcome/welcome_screen.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
@@ -12,7 +13,7 @@ void main() async {
 
   ThemeController().init();
 
-  String? username = PreferencesManager().getString("username");
+  String? username = PreferencesManager().getString(StorageKey.username);
   runApp(MyApp(username: username));
 }
 

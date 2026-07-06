@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/core/widgets/custom_add_edit_task.dart';
 import 'package:second_project/models/task.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
@@ -40,7 +41,9 @@ class _AddNewTaskState extends State<AddNewTask> {
           buttonText: "Add Task",
           onPressed: () async {
             if (formKey.currentState?.validate() ?? false) {
-              final taskJson = PreferencesManager().getString("tasks");
+              final taskJson = PreferencesManager().getString(
+                StorageKey.taskName,
+              );
               List<dynamic> tasks = [];
               if (taskJson != null) {
                 tasks = jsonDecode(taskJson);
@@ -55,7 +58,10 @@ class _AddNewTaskState extends State<AddNewTask> {
 
               tasks.add(taskModel.toMap());
               final taskEncode = jsonEncode(tasks);
-              await PreferencesManager().setString("tasks", taskEncode);
+              await PreferencesManager().setString(
+                StorageKey.taskName,
+                taskEncode,
+              );
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop(true);
             }

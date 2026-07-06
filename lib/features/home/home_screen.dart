@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/add_task/new_task_screen.dart';
 import 'package:second_project/features/home/components/custom_achieved_tasks.dart';
 import 'package:second_project/core/widgets/custom_add_buttton.dart';
@@ -37,15 +38,16 @@ class _HomeScreenState extends State<HomeScreen> {
   //step4 ---- create a function to load load User Data :
   void _loadUserData() async {
     setState(() {
-      username = PreferencesManager().getString("username") ?? "Guset";
+      username = PreferencesManager().getString(StorageKey.username) ?? "Guset";
       motivationQuote =
-          PreferencesManager().getString("motivation_quote") ?? "Nothing";
+          PreferencesManager().getString(StorageKey.motivationQuote) ??
+          "Nothing";
     });
   }
 
   //step5 ---- Create a function to load tasks
   void _loadTask() async {
-    final finalTask = PreferencesManager().getString("tasks");
+    final finalTask = PreferencesManager().getString(StorageKey.taskName);
     if (finalTask != null) {
       final taskAfterDecode = jsonDecode(finalTask) as List<dynamic>;
 
@@ -71,7 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
       tasks[index ?? 0].isDone = value ?? false;
     });
     final updatedTask = tasks.map((element) => element.toMap()).toList();
-    await PreferencesManager().setString('tasks', jsonEncode(updatedTask));
+    await PreferencesManager().setString(
+      StorageKey.taskName,
+      jsonEncode(updatedTask),
+    );
   }
 
   //step8 ---- Create a function to delete the task :
@@ -81,7 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
       tasks.removeWhere((task) => task.id == id);
     });
     final updatedTask = tasks.map((element) => element.toMap()).toList();
-    await PreferencesManager().setString('tasks', jsonEncode(updatedTask));
+    await PreferencesManager().setString(
+      StorageKey.taskName,
+      jsonEncode(updatedTask),
+    );
   }
 
   //step2 ---- Create The page :
