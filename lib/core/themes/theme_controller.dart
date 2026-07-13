@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
 
 class ThemeController {
@@ -7,7 +8,7 @@ class ThemeController {
   );
 
   init() {
-    bool result = PreferencesManager().getBool("theme") ?? true;
+    bool result = PreferencesManager().getBool(StorageKey.theme) ?? true;
 
     if (result == true) {
       valueNotifier.value = ThemeMode.dark;
@@ -19,10 +20,10 @@ class ThemeController {
   static toggleTheme() async {
     if (valueNotifier.value == ThemeMode.dark) {
       valueNotifier.value = ThemeMode.light;
-      await PreferencesManager().setBool("theme", false);
+      await PreferencesManager().setBool(StorageKey.theme, false);
     } else {
       valueNotifier.value = ThemeMode.dark;
-      await PreferencesManager().setBool("theme", true);
+      await PreferencesManager().setBool(StorageKey.theme, true);
     }
   }
 

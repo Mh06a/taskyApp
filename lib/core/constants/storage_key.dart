@@ -4,4 +4,6 @@ class StorageKey {
   static const String taskName = "tasks";
 
   static const String motivationQuote = "motivation_quote";
+
+  static const String theme = "theme";
 }

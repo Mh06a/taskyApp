@@ -23,6 +23,8 @@ class TaskModel {
     };
   }
 
+  Map<String, dynamic> toJson() => toMap();
+
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
       id: json["id"],

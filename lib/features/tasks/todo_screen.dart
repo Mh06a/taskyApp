@@ -1,70 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:second_project/core/components/custom_list.dart';
-import 'package:second_project/core/constants/storage_key.dart';
-import 'dart:convert';
-import 'package:second_project/models/task.dart';
-import 'package:second_project/core/services/preferences_manager.dart';
+import 'package:second_project/features/tasks/tasks_controller.dart';
 
-class TodoScreen extends StatefulWidget {
+class TodoScreen extends StatelessWidget {
   const TodoScreen({super.key});
-
-  @override
-  State<TodoScreen> createState() => _TodoScreenState();
-}
-
-class _TodoScreenState extends State<TodoScreen> {
-  //step1 ----> here Create Var for class :
-  List<TaskModel> tasks = [];
-
-  //step3 ---- call initState() :
-  @override
-  void initState() {
-    super.initState();
-
-    _loadTask();
-  }
-
-  //step4 ---- Create a function to load tasks
-  void _loadTask() async {
-    final finalTask = PreferencesManager().getString(StorageKey.taskName);
-    if (finalTask != null) {
-      final taskAfterDecode = jsonDecode(finalTask) as List<dynamic>;
-      setState(() {
-        tasks = taskAfterDecode
-            .map((element) => TaskModel.fromJson(element))
-            .where((element) => element.isDone == false)
-            .toList();
-      });
-    }
-  }
-
-  //step5 ---- Create a function to delete the task :
-  Future<void> _deleteTask(int? id) async {
-    List<TaskModel> tasksA = [];
-    if (id == null) return;
-
-    final finalTask = PreferencesManager().getString(StorageKey.taskName);
-    if (finalTask != null) {
-      final taskAfterDecode = jsonDecode(finalTask) as List<dynamic>;
-      tasksA = taskAfterDecode
-          .map((element) => TaskModel.fromJson(element))
-          .toList();
-      tasksA.removeWhere((e) => e.id == id);
-
-      setState(() {
-        tasks.removeWhere((task) => task.id == id);
-      });
-      final updatedTask = tasksA.map((element) => element.toMap()).toList();
-      await PreferencesManager().setString(
-        StorageKey.taskName,
-        jsonEncode(updatedTask),
-      );
-    }
-  }
 
   //step2 ----> here Create The page :
   @override
   Widget build(BuildContext context) {
+    final controller = context.read<TasksController>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -84,39 +29,24 @@ class _TodoScreenState extends State<TodoScreen> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: CustomList(
-              tasks: tasks,
-              onTap: (value, index) async {
-                setState(() {
-                  tasks[index ?? 0].isDone = value ?? false;
-                });
-
-                final allData = PreferencesManager().getString(
-                  StorageKey.taskName,
+            child: Consumer<TasksController>(
+              builder: (context, controllerValue, child) {
+                return CustomList(
+                  tasks: controllerValue.todoTasks,
+                  onTap: (value, index) async {
+                    controller.doneTask(
+                      value,
+                      controllerValue.todoTasks[index!].id,
+                    );
+                  },
+                  empatyMessage: "No Task Found",
+                  onDelete: (int? id) {
+                    controller.deleteTask(id);
+                  },
+                  onEdit: () {
+                    controller.init();
+                  },
                 );
-                if (allData != null) {
-                  List<TaskModel> allDataList = (jsonDecode(allData) as List)
-                      .map((element) => TaskModel.fromJson(element))
-                      .toList();
-
-                  final newIndex = allDataList.indexWhere(
-                    (e) => e.id == tasks[index!].id,
-                  );
-                  allDataList[newIndex] = tasks[index!];
-
-                  await PreferencesManager().setString(
-                    StorageKey.taskName,
-                    jsonEncode(allDataList.map((e) => e.toMap()).toList()),
-                  );
-                  _loadTask();
-                }
-              },
-              empatyMessage: "No Task Found",
-              onDelete: (int? id) {
-                _deleteTask(id);
-              },
-              onEdit: () {
-                _loadTask();
               },
             ),
           ),

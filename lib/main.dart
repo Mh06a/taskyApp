@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/navigation/main_screen.dart';
+import 'package:second_project/features/tasks/tasks_controller.dart';
 import 'package:second_project/features/welcome/welcome_screen.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
 import 'package:second_project/core/themes/dark_theme.dart';
@@ -29,13 +31,16 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: ThemeController.valueNotifier,
       builder: (context, ThemeMode value, Widget? child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Tasky',
-          theme: lightTheme,
-          themeMode: value,
-          darkTheme: darkTheme,
-          home: username == null ? WelcomeScreen() : MainScreen(),
+        return ChangeNotifierProvider<TasksController>(
+          create: (context) => TasksController()..init(),
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Tasky',
+            theme: lightTheme,
+            themeMode: value,
+            darkTheme: darkTheme,
+            home: username == null ? WelcomeScreen() : MainScreen(),
+          ),
         );
       },
     );
