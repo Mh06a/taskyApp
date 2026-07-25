@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/navigation/main_screen.dart';
 import 'package:second_project/core/widgets/custom_button.dart';
 import 'package:second_project/core/widgets/textFormField.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeScreen extends StatelessWidget {
   WelcomeScreen({super.key});
@@ -24,19 +24,18 @@ class WelcomeScreen extends StatelessWidget {
             child: Form(
               key: nameKey,
               child: Column(
-                //crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: 10),
+                  SizedBox(height: AppSizes.h10),
                   // First Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SvgPicture.asset(
                         "assets/icons/Vector.svg",
-                        width: 42,
-                        height: 42,
+                        width: AppSizes.w42,
+                        height: AppSizes.h42,
                       ),
-                      SizedBox(width: 16),
+                      SizedBox(width: AppSizes.w16),
                       Text(
                         "Tasky",
                         style: Theme.of(context).textTheme.displayLarge,
@@ -44,7 +43,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 108),
+                  SizedBox(height: AppSizes.h108),
                   // Second Column
                   Column(
                     children: [
@@ -59,30 +58,29 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                           SvgPicture.asset(
                             "assets/icons/waving_hand.svg",
-                            height: 28,
-                            width: 28,
+                            height: AppSizes.h28,
+                            width: AppSizes.w28,
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: AppSizes.h8),
                       Text(
                         "your productivity journey starts here",
-                        style: Theme.of(
-                          context,
-                        ).textTheme.displayMedium?.copyWith(fontSize: 16),
+                        style: Theme.of(context).textTheme.displayMedium
+                            ?.copyWith(fontSize: AppSizes.font16),
                       ),
-                      SizedBox(height: 28),
+                      SizedBox(height: AppSizes.h28),
                       SvgPicture.asset(
                         "assets/images/pana.svg",
                         height: 204,
                         width: 215,
                       ),
-                      SizedBox(height: 28),
+                      SizedBox(height: AppSizes.h28),
                       // treed column
                       Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.all(10.0),
+                            padding: EdgeInsets.all(AppSizes.w10),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -96,7 +94,7 @@ class WelcomeScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-                          SizedBox(height: 20),
+                          SizedBox(height: AppSizes.h20),
                           CustomButton(
                             onPressed: () async {
                               if (nameKey.currentState?.validate() ?? false) {

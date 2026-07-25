@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/features/profile/user_details.dart';
 import 'package:second_project/features/welcome/welcome_screen.dart';
@@ -42,22 +43,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(AppSizes.w16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //step2.1 ----> here Create text tp  AppBar :
           Padding(
-            padding: const EdgeInsets.only(top: 8.0),
+            padding: EdgeInsets.only(top: AppSizes.h8),
             child: Text(
               "My Profile",
               style: Theme.of(
                 context,
-              ).textTheme.displaySmall?.copyWith(fontSize: 20),
+              ).textTheme.displaySmall?.copyWith(fontSize: AppSizes.font20),
               textAlign: TextAlign.start,
             ),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: AppSizes.h16),
 
           //step2.2 ----> here Create the body :
           Center(
@@ -71,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundImage: _selectedImage == null
                           ? AssetImage("assets/images/me.jpg")
                           : FileImage(_selectedImage!),
-                      radius: 60,
+                      radius: AppSizes.r60,
                       backgroundColor: Colors.transparent,
                     ),
                     GestureDetector(
@@ -83,10 +84,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         });
                       },
                       child: Container(
-                        width: 45,
-                        height: 45,
+                        width: AppSizes.w45,
+                        height: AppSizes.h45,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
+                          borderRadius: BorderRadius.circular(AppSizes.r100),
                           color: Theme.of(context).colorScheme.surface,
                         ),
 
@@ -98,19 +99,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: AppSizes.h8),
                 //step2.2.2 ----> here Create the user name  :
                 Text(
                   "$username",
                   style: Theme.of(
                     context,
-                  ).textTheme.displaySmall?.copyWith(fontSize: 20),
+                  ).textTheme.displaySmall?.copyWith(fontSize: AppSizes.font20),
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: AppSizes.h8),
                 Text(
                   "$motivationQuote",
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: AppSizes.font14,
                     color: Theme.of(context).colorScheme.secondary,
                     fontWeight: FontWeight.w400,
                   ),
@@ -118,14 +119,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          SizedBox(height: 24),
+          SizedBox(height: AppSizes.h24),
           Text(
             "Profile Info",
             style: Theme.of(
               context,
-            ).textTheme.displaySmall?.copyWith(fontSize: 20),
+            ).textTheme.displaySmall?.copyWith(fontSize: AppSizes.font20),
           ),
-          SizedBox(height: 16),
+          SizedBox(height: AppSizes.h16),
           //step2.2.3 ----> here Create the profile details:  :
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -258,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   selectedFile(image);
                 }
               },
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSizes.w16),
               child: Row(children: [Icon(Icons.camera_alt), Text("Camera")]),
             ),
             // -----
@@ -273,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   selectedFile(image);
                 }
               },
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(AppSizes.w16),
               child: Row(
                 children: [Icon(Icons.photo_library), Text("Gallery")],
               ),

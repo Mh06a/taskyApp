@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:second_project/core/components/custom_task_item.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/features/tasks/tasks_controller.dart';
 
 class SilverCustomList extends StatelessWidget {
@@ -22,7 +23,7 @@ class SilverCustomList extends StatelessWidget {
                     ),
                   )
                 : SliverPadding(
-                    padding: const EdgeInsets.only(bottom: 30.0),
+                    padding: EdgeInsets.only(bottom: AppSizes.h30),
                     sliver: SliverList.separated(
                       itemCount: controller.tasks.length,
                       itemBuilder: (context, index) {
@@ -43,7 +44,7 @@ class SilverCustomList extends StatelessWidget {
                         );
                       },
                       separatorBuilder: (BuildContext context, int index) {
-                        return SizedBox(height: 8);
+                        return SizedBox(height: AppSizes.h8);
                       },
                     ),
                   );

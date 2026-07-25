@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/core/widgets/custom_add_buttton.dart';
 import 'package:second_project/core/widgets/textFormField.dart';
 
@@ -28,7 +29,10 @@ class CustomAddEditTask extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSizes.w16,
+        vertical: AppSizes.h8,
+      ),
       child: Form(
         key: formKey,
         child: Column(
@@ -47,7 +51,7 @@ class CustomAddEditTask extends StatelessWidget {
                       validatorText: "Please enter task name",
                     ),
 
-                    SizedBox(height: 20),
+                    SizedBox(height: AppSizes.h20),
 
                     //step2.4 ----> here Create task description :
                     CutomTextFormField(
@@ -59,7 +63,7 @@ class CustomAddEditTask extends StatelessWidget {
                       maxLines: 5,
                     ),
 
-                    SizedBox(height: 24),
+                    SizedBox(height: AppSizes.h24),
 
                     //step2.5 ----> here Create Row to Priority :
                     Row(
@@ -77,13 +81,13 @@ class CustomAddEditTask extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 40),
+            SizedBox(height: AppSizes.h40),
             //step5.6 ----> here Create Add Button :
             CustomAddButton(
               onPressed: onPressed,
               buttonText: buttonText,
-              height: 40,
-              width: 343,
+              height: AppSizes.h40,
+              width: AppSizes.w343,
               icon: buttonIcon,
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 
 class CustomButton extends StatelessWidget {
   final void Function()? onPressed;
@@ -14,9 +15,9 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(MediaQuery.of(context).size.width, 40),
+        fixedSize: Size(MediaQuery.of(context).size.width, AppSizes.h40),
       ),
-      child: Text(buttonText, style: const TextStyle(fontSize: 14)),
+      child: Text(buttonText, style: TextStyle(fontSize: AppSizes.font14)),
     );
   }
 }

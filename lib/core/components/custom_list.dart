@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:second_project/core/components/custom_task_item.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/models/task.dart';
 
 class CustomList extends StatelessWidget {
@@ -33,7 +34,7 @@ class CustomList extends StatelessWidget {
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: tasks.length,
-            padding: EdgeInsets.only(bottom: 60),
+            padding: EdgeInsets.only(bottom: AppSizes.h60),
             itemBuilder: (context, index) {
               return CustomTaskItem(
                 model: tasks[index],

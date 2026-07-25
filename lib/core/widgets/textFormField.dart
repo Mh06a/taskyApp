@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 
 class CutomTextFormField extends StatelessWidget {
   // here I will Create Var
@@ -26,10 +27,10 @@ class CutomTextFormField extends StatelessWidget {
           titleText,
           style: Theme.of(
             context,
-          ).textTheme.displaySmall?.copyWith(fontSize: 18),
+          ).textTheme.displaySmall?.copyWith(fontSize: AppSizes.font18),
           textAlign: TextAlign.start,
         ),
-        SizedBox(height: 8),
+        SizedBox(height: AppSizes.h8),
         TextFormField(
           style: Theme.of(context).textTheme.labelMedium,
           validator: (String? value) {
@@ -41,7 +42,10 @@ class CutomTextFormField extends StatelessWidget {
           maxLines: maxLines,
           controller: myController,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: AppSizes.h2,
+              horizontal: AppSizes.w15,
+            ),
             hintText: hintText,
           ),
         ),

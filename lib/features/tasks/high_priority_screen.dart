@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:second_project/core/components/custom_list.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/features/tasks/tasks_controller.dart';
 
 class HighPriorityScreen extends StatelessWidget {
@@ -16,7 +17,7 @@ class HighPriorityScreen extends StatelessWidget {
 
       //step2.2 ----> here Create a body :
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(AppSizes.w16),
         child: Consumer<TasksController>(
           builder: (BuildContext context, valueController, Widget? child) {
             return CustomList(

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/core/themes/theme_controller.dart';
 import 'package:second_project/features/tasks/tasks_controller.dart';
 
@@ -15,16 +16,16 @@ class CustomAchievedTasks extends StatelessWidget {
     return Consumer<TasksController>(
       builder: (BuildContext context, TasksController controller, Widget? child) {
         return Container(
-          padding: EdgeInsets.all(14),
+          padding: EdgeInsets.all(AppSizes.w14),
           width: double.infinity,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppSizes.r20),
             border: Border.all(
               color: ThemeController.isDark()
                   ? Colors.transparent
                   : Theme.of(context).colorScheme.outline,
-              width: 1.5,
+              width: AppSizes.w2,
             ),
           ),
           child: Row(
@@ -41,7 +42,7 @@ class CustomAchievedTasks extends StatelessWidget {
                     "${controller.doneTasks} out of ${controller.totalTask} Done",
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 14,
+                      fontSize: AppSizes.font14,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -53,13 +54,13 @@ class CustomAchievedTasks extends StatelessWidget {
                   Transform.rotate(
                     angle: -pi / 2,
                     child: SizedBox(
-                      height: 48,
-                      width: 48,
+                      height: AppSizes.h48,
+                      width: AppSizes.w48,
                       child: CircularProgressIndicator(
                         value: controller.percent,
                         backgroundColor: Theme.of(context).colorScheme.outline,
                         valueColor: AlwaysStoppedAnimation(Color(0XFF15B86C)),
-                        strokeWidth: 3,
+                        strokeWidth: AppSizes.w3,
                       ),
                     ),
                   ),
@@ -67,7 +68,7 @@ class CustomAchievedTasks extends StatelessWidget {
                     "${((controller.percent * 100).toInt())} %",
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 14,
+                      fontSize: AppSizes.font14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

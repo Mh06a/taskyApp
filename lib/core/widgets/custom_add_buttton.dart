@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 
 class CustomAddButton extends StatelessWidget {
   final void Function()? onPressed;
@@ -23,7 +24,10 @@ class CustomAddButton extends StatelessWidget {
       icon: icon,
       label: Text(
         buttonText,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontSize: AppSizes.font14,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

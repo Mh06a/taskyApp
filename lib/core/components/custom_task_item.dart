@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/core/widgets/custom_add_edit_task.dart';
 import 'package:second_project/core/widgets/custom_check_box.dart';
@@ -26,31 +27,31 @@ class CustomTaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.all(AppSizes.w8),
       child: Container(
-        height: 56,
+        height: AppSizes.h56,
         width: double.infinity,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppSizes.r20),
           border: Border.all(
             color: ThemeController.isDark()
                 ? Colors.transparent
                 : Theme.of(context).colorScheme.outline,
-            width: 1.5,
+            width: AppSizes.w2,
           ),
         ),
         child: Row(
           children: [
-            SizedBox(width: 8),
+            SizedBox(width: AppSizes.w8),
 
             CustomCheckBox(
               value: model.isDone,
               onChanged: (bool? value) => onChanged(value),
             ),
 
-            SizedBox(width: 16),
+            SizedBox(width: AppSizes.w16),
 
             Expanded(
               child: Column(
@@ -72,13 +73,13 @@ class CustomTaskItem extends StatelessWidget {
                     ),
                     maxLines: 1,
                   ),
-                  SizedBox(height: 2),
+                  SizedBox(height: AppSizes.h2),
                   if (model.taskDescription.isNotEmpty)
                     Text(
                       model.taskDescription,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 14,
+                        fontSize: AppSizes.font14,
                         overflow: TextOverflow.ellipsis,
                       ),
                       maxLines: 1,

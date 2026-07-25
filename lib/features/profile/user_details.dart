@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/core/constants/storage_key.dart';
 import 'package:second_project/core/widgets/custom_button.dart';
 import 'package:second_project/core/widgets/textFormField.dart';
 import 'package:second_project/core/services/preferences_manager.dart';
 
 class UserDetails extends StatefulWidget {
-  UserDetails({super.key});
+  const UserDetails({super.key});
 
   @override
   State<UserDetails> createState() => _UserDetailsState();
@@ -38,7 +39,7 @@ class _UserDetailsState extends State<UserDetails> {
     return Scaffold(
       appBar: AppBar(title: Text("User Details")),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(AppSizes.w16),
         child: Form(
           key: _key,
           child: Column(
@@ -50,7 +51,7 @@ class _UserDetailsState extends State<UserDetails> {
                 validatorText: "Please enter your name",
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: AppSizes.h20),
 
               CutomTextFormField(
                 titleText: "Motivation Quote",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:second_project/core/constants/app_sizes.dart';
 import 'package:second_project/features/add_task/new_task_screen.dart';
 import 'package:second_project/features/home/components/custom_achieved_tasks.dart';
 import 'package:second_project/core/widgets/custom_add_buttton.dart';
@@ -19,7 +20,7 @@ class HomeScreen extends StatelessWidget {
       create: (context) => HomeController()..init(),
       child: Scaffold(
         body: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(AppSizes.w16),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
@@ -31,10 +32,10 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         SvgPicture.asset(
                           "assets/icons/Vector.svg",
-                          width: 42,
-                          height: 42,
+                          width: AppSizes.w42,
+                          height: AppSizes.h42,
                         ),
-                        SizedBox(width: 8),
+                        SizedBox(width: AppSizes.w8),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -63,24 +64,24 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(width: 30),
+                        SizedBox(width: AppSizes.w30),
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(2),
                             color: Theme.of(context).colorScheme.surface,
                           ),
-                          width: 18,
-                          height: 18,
+                          width: AppSizes.w18,
+                          height: AppSizes.h18,
                           child: SvgPicture.asset(
                             "assets/icons/sun.svg",
-                            width: 15,
-                            height: 15,
+                            width: AppSizes.w15,
+                            height: AppSizes.h15,
                           ),
                         ),
                       ],
                     ),
 
-                    SizedBox(height: 16),
+                    SizedBox(height: AppSizes.h16),
 
                     // step2.3 --- Yuhuu Text :
                     Column(
@@ -100,25 +101,28 @@ class HomeScreen extends StatelessWidget {
 
                             SvgPicture.asset(
                               "assets/icons/waving_hand.svg",
-                              height: 32,
-                              width: 32,
+                              height: AppSizes.h32,
+                              width: AppSizes.w32,
                             ),
                           ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
+                    SizedBox(height: AppSizes.h16),
 
                     //step2.5 ---Achieved Tasks :
                     CustomAchievedTasks(),
 
-                    SizedBox(height: 8),
+                    SizedBox(height: AppSizes.h8),
 
                     //step2.6 ---High Priority Tasks :
                     HighPriorityTasks(),
 
                     Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 16),
+                      padding: EdgeInsets.only(
+                        top: AppSizes.h24,
+                        bottom: AppSizes.h16,
+                      ),
                       child: Text(
                         "My Tasks",
                         style: Theme.of(context).textTheme.displayMedium,
@@ -152,8 +156,8 @@ class HomeScreen extends StatelessWidget {
                           }
                         },
                         buttonText: "Add New Task",
-                        height: 40.0,
-                        width: 167.0,
+                        height: AppSizes.h40,
+                        width: AppSizes.w167,
                         icon: Icon(Icons.add),
                       );
                     },
