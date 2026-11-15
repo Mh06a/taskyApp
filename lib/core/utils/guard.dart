@@ -1,0 +1,12 @@
+import 'package:tasky/core/errors/failure.dart';
+import 'package:tasky/core/utils/result.dart';
+
+Future<Result<T>> guard<T>(
+    Future<T> Function() action,
+    ) async {
+  try {
+    return Ok<T>(await action());
+  } on Exception catch (e) {
+    return Err<T>(StorageFailure(cause: e));
+  }
+}
