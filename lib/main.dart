@@ -1,27 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:tasky/app/di/app_dependencies.dart';
+import 'package:tasky/presentation/app/tasky_app.dart';
 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() async {
-  runApp(MyApp());
-}
+  final dependencies = await AppDependencies.create();
 
-class MyApp extends StatelessWidget {
-
-  const MyApp({super.key,});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      minTextAdapt: true,
-      designSize: Size(375, 809),
-      builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Tasky',
-        );
-      },
-    );
-  }
+  runApp(
+    TaskyApp(
+      dependencies: dependencies,
+    ),
+  );
 }

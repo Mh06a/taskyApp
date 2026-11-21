@@ -13,7 +13,10 @@ final class TasksRepositoryImpl implements TasksRepository {
 
   @override
   Future<Result<List<Task>>> getTasks() {
-    return guard<List<Task>>(_dataSource.getTasks);
+    return guard<List<Task>>(() async {
+      final models = await _dataSource.getTasks();
+      return models.map((model) => model.toEntity()).toList(growable: true);
+    });
   }
 
   @override

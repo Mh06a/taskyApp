@@ -48,8 +48,14 @@ final class FilterAndSortTasks {
     final dueA = a.dueDate;
     final dueB = b.dueDate;
     if (dueA != null && dueB != null) {
-      final byDue = dueA.compareTo(dueB);
-      if (byDue != 0) return byDue;
+      final dateA = DateTime(dueA.year, dueA.month, dueA.day);
+      final dateB = DateTime(dueB.year, dueB.month, dueB.day);
+      final byDay = dateA.compareTo(dateB);
+      if (byDay != 0) return byDay;
+      if (a.hasDueTime && b.hasDueTime) {
+        final byTime = dueA.compareTo(dueB);
+        if (byTime != 0) return byTime;
+      }
     } else if (dueA != null) {
       return -1;
     } else if (dueB != null) {

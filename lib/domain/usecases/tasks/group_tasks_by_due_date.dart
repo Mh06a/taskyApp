@@ -8,17 +8,23 @@ final class GroupTasksByDueDate {
 
   Map<DueGroup, List<Task>> call(List<Task> tasks, DateTime now) {
     final today = now.dateOnly;
+
     final groups = <DueGroup, List<Task>>{
       for (final group in DueGroup.values) group: <Task>[],
     };
 
     for (final task in tasks) {
+      if (task.isDone) continue;
+
       final due = task.dueDate;
+
       final group = due == null
           ? DueGroup.noDate
           : _groupFor(due.dateOnly, today);
+
       groups[group]!.add(task);
     }
+
     return groups;
   }
 

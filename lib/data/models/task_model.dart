@@ -47,6 +47,19 @@ final class TaskModel extends Task {
     );
   }
 
+  Task toEntity() {
+    return Task(
+      id: id,
+      title: title,
+      description: description,
+      priority: priority,
+      dueDate: dueDate,
+      hasDueTime: hasDueTime,
+      createdAt: createdAt,
+      completedAt: completedAt,
+    );
+  }
+
   Map<String, Object?> toMap() {
     return {
       TasksTable.id: id,

@@ -29,6 +29,7 @@ class Task extends Equatable {
   bool isOverdue(DateTime now) {
     final due = dueDate;
     if (isDone || due == null) return false;
+    if (hasDueTime) return due.isBefore(now);
     return due.dateOnly.isBefore(now.dateOnly);
   }
 

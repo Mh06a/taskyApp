@@ -69,7 +69,16 @@ class DatabaseService {
       path,
       version: DatabaseConstants.version,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    // Keep this migration hook explicit. Schema changes must be incremental and
+    // non-destructive; do not drop user tables during upgrades.
+    if (oldVersion < 2) {
+      // Version 2 introduces migration infrastructure only; schema is unchanged.
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {

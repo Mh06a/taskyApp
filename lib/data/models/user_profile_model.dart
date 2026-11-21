@@ -15,15 +15,23 @@ final class UserProfileModel extends UserProfile {
     );
   }
 
-  factory UserProfileModel.fromJson(Map<String, dynamic> json) {
+
+  factory UserProfileModel.fromJson(
+    Map<String, dynamic> json, {
+    String? avatarPath,
+  }) {
     return UserProfileModel(
       name: json['name'] as String,
       quote: json['quote'] as String? ?? '',
-      avatarPath: json['avatarPath'] as String?,
+      avatarPath: avatarPath,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {'name': name, 'quote': quote, 'avatarPath': avatarPath};
+  Map<String, dynamic> toJson({String? avatarFileName}) {
+    return {
+      'name': name,
+      'quote': quote,
+      'avatarFile': avatarFileName,
+    };
   }
 }
