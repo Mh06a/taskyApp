@@ -55,6 +55,12 @@ class AvatarStorageDataSource {
 
 
   Future<String?> fileNameIfOwned(String path) async {
+    if (path.isEmpty) return null;
+
+    final file = File(path);
+
+    if (!await file.exists()) return null;
+
     if (!await _isOwned(path)) return null;
 
     return p.basename(path);

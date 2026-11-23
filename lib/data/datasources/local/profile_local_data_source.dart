@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:tasky/core/constants/database_constants.dart';
+import 'package:tasky/core/errors/exceptions.dart';
 import 'package:tasky/data/datasources/local/avatar_storage_data_source.dart';
 import 'package:tasky/data/models/user_profile_model.dart';
 import 'package:tasky/data/services/database_service.dart';
@@ -52,16 +53,23 @@ final class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
 
   //saveProfile
   @override
+  @override
   Future<void> saveProfile(UserProfileModel profile) async {
     final db = await _databaseService.database;
 
-    final previousPath = (await getProfile())?.avatarPath;
-
     final avatarPath = profile.avatarPath;
 
-    final avatarFileName = avatarPath == null
-        ? null
-        : await _avatarStorage.fileNameIfOwned(avatarPath);
+    String? avatarFileName;
+
+    if (avatarPath != null) {
+      avatarFileName = await _avatarStorage.fileNameIfOwned(avatarPath);
+
+      if (avatarFileName == null) {
+        throw const StorageException(
+          'Avatar file is invalid or not owned by the application.',
+        );
+      }
+    }
 
     final data = profile.toMap(
       avatarFileName: avatarFileName,
@@ -74,10 +82,6 @@ final class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
       data,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-
-    if (previousPath != null && previousPath != avatarPath) {
-      await _avatarStorage.deleteIfOwned(previousPath);
-    }
   }
 
   //clearProfile

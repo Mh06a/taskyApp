@@ -1,18 +1,19 @@
-import 'package:tasky/data/services/database_service.dart';
 import 'package:tasky/core/services/uuid_id_generator.dart';
 import 'package:tasky/data/datasources/local/avatar_storage_data_source.dart';
-import 'package:tasky/data/datasources/local/profile_local_data_source.dart';
 import 'package:tasky/data/datasources/local/onboarding_local_data_source.dart';
+import 'package:tasky/data/datasources/local/profile_local_data_source.dart';
 import 'package:tasky/data/datasources/local/settings_local_data_source.dart';
 import 'package:tasky/data/datasources/local/tasks_local_data_source.dart';
 import 'package:tasky/data/repositories/avatar_repository_impl.dart';
-import 'package:tasky/data/repositories/profile_repository_impl.dart';
 import 'package:tasky/data/repositories/onboarding_repository_impl.dart';
+import 'package:tasky/data/repositories/profile_repository_impl.dart';
 import 'package:tasky/data/repositories/settings_repository_impl.dart';
 import 'package:tasky/data/repositories/tasks_repository_impl.dart';
+import 'package:tasky/data/services/database_service.dart';
 import 'package:tasky/data/services/preferences_manager.dart';
-import 'package:tasky/domain/usecases/onboarding/get_onboarding_status.dart';
 import 'package:tasky/domain/usecases/onboarding/complete_onboarding.dart';
+import 'package:tasky/domain/usecases/onboarding/get_onboarding_status.dart';
+import 'package:tasky/domain/usecases/profile/delete_avatar_usecase.dart';
 import 'package:tasky/domain/usecases/profile/get_profile.dart';
 import 'package:tasky/domain/usecases/profile/save_avatar_usecase.dart';
 import 'package:tasky/domain/usecases/profile/save_profile.dart';
@@ -24,9 +25,9 @@ import 'package:tasky/domain/usecases/tasks/delete_task.dart';
 import 'package:tasky/domain/usecases/tasks/filter_and_sort_tasks.dart';
 import 'package:tasky/domain/usecases/tasks/get_tasks.dart';
 import 'package:tasky/domain/usecases/tasks/get_task_stats.dart';
+import 'package:tasky/domain/usecases/tasks/restore_task.dart';
 import 'package:tasky/domain/usecases/tasks/toggle_task_done.dart';
 import 'package:tasky/domain/usecases/tasks/update_task.dart';
-import 'package:tasky/domain/usecases/tasks/restore_task.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/controllers/settings_controller.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
@@ -35,7 +36,8 @@ class AppDependencies {
   const AppDependencies({
     required this.getOnboardingStatus,
     required this.completeOnboarding,
-    required this.avatarUseCase,
+    required this.saveAvatarUseCase,
+    required this.deleteAvatarUseCase,
     required this.tasksController,
     required this.profileController,
     required this.settingsController,
@@ -43,7 +45,10 @@ class AppDependencies {
 
   final GetOnboardingStatus getOnboardingStatus;
   final CompleteOnboarding completeOnboarding;
-  final AvatarUseCase avatarUseCase;
+
+  final SaveAvatarUseCase saveAvatarUseCase;
+  final DeleteAvatarUseCase deleteAvatarUseCase;
+
   final TasksController tasksController;
   final ProfileController profileController;
   final SettingsController settingsController;
@@ -55,20 +60,38 @@ class AppDependencies {
 
     // Data sources
     final avatarStorage = AvatarStorageDataSource();
-    final onboardingDataSource = OnboardingLocalDataSourceImpl(preferencesManager);
+
+    final onboardingDataSource =
+    OnboardingLocalDataSourceImpl(preferencesManager);
+
     final tasksDataSource = TasksLocalDataSourceImpl(database);
+
     final profileDataSource = ProfileLocalDataSourceImpl(
       database,
       avatarStorage,
     );
-    final settingsDataSource = SettingsLocalDataSourceImpl(preferencesManager);
+
+    final settingsDataSource =
+    SettingsLocalDataSourceImpl(preferencesManager);
 
     // Repositories
-    final avatarRepository = AvatarRepositoryImpl(storageService: avatarStorage);
-    final onboardingRepository = OnboardingRepositoryImpl(onboardingDataSource);
+    final avatarRepository = AvatarRepositoryImpl(
+      storageService: avatarStorage,
+    );
+
+    final onboardingRepository =
+    OnboardingRepositoryImpl(onboardingDataSource);
+
     final tasksRepository = TasksRepositoryImpl(tasksDataSource);
+
     final profileRepository = ProfileRepositoryImpl(profileDataSource);
-    final settingsRepository = SettingsRepositoryImpl(settingsDataSource);
+
+    final settingsRepository =
+    SettingsRepositoryImpl(settingsDataSource);
+
+    // Avatar use cases
+    final saveAvatarUseCase = SaveAvatarUseCase(avatarRepository);
+    final deleteAvatarUseCase = DeleteAvatarUseCase(avatarRepository);
 
     // Tasks controller
     final tasksController = TasksController(
@@ -92,7 +115,10 @@ class AppDependencies {
     // Profile controller
     final profileController = ProfileController(
       getProfile: GetProfile(profileRepository),
-      saveProfile: SaveProfile(profileRepository),
+      saveProfile: SaveProfile(
+        profileRepository,
+        deleteAvatarUseCase,
+      ),
       clearUserData: ClearUserData(
         tasksRepository: tasksRepository,
         profileRepository: profileRepository,
@@ -108,7 +134,8 @@ class AppDependencies {
     return AppDependencies(
       getOnboardingStatus: GetOnboardingStatus(onboardingRepository),
       completeOnboarding: CompleteOnboarding(onboardingRepository),
-      avatarUseCase: AvatarUseCase(repository: avatarRepository),
+      saveAvatarUseCase: saveAvatarUseCase,
+      deleteAvatarUseCase: deleteAvatarUseCase,
       tasksController: tasksController,
       profileController: profileController,
       settingsController: settingsController,

@@ -1,12 +1,15 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:tasky/presentation/controllers/profile_controller.dart';
+
 import 'package:tasky/core/constants/limits.dart';
-import 'package:tasky/core/validators/validators.dart';
 import 'package:tasky/core/enums/validation_error.dart';
+import 'package:tasky/core/validators/validators.dart';
+import 'package:tasky/domain/usecases/profile/delete_avatar_usecase.dart';
 import 'package:tasky/domain/usecases/profile/save_avatar_usecase.dart';
+import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -22,11 +25,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _quoteController;
 
-  late final AvatarUseCase _avatarUseCase;
+  late final SaveAvatarUseCase _saveAvatar;
+  late final DeleteAvatarUseCase _deleteAvatar;
 
   String? _avatarPath;
 
-  /// Avatar copied into app storage during this session but not saved yet.
+  // Avatar copied into app storage during this session but not saved yet.
   String? _pendingAvatarPath;
 
   bool _removeAvatar = false;
@@ -37,7 +41,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
 
-    _avatarUseCase = context.read<AvatarUseCase>();
+    _saveAvatar = context.read<SaveAvatarUseCase>();
+    _deleteAvatar = context.read<DeleteAvatarUseCase>();
 
     final profile = context.read<ProfileController>().profile;
 
@@ -65,6 +70,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     super.dispose();
   }
+
   void _showAvatarError(String message) {
     if (!mounted) return;
 
@@ -74,7 +80,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _deleteAvatarQuietly(String path) async {
-    final result = await _avatarUseCase.deleteAvatar(path);
+    final result = await _deleteAvatar(path);
 
     result.when(
       ok: (_) {},
@@ -94,7 +100,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (image == null || !mounted) return;
 
-      final saveResult = await _avatarUseCase.saveAvatar(image.path);
+      final saveResult = await _saveAvatar(image.path);
 
       final permanentPath = saveResult.when<String?>(
         ok: (path) => path,
@@ -131,6 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isSaving) return;
 
     setState(() => _isSaving = true);
 
@@ -145,16 +152,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() => _isSaving = false);
 
-    if (success) {
-      _isSaved = true;
-
-      // A picked image that was removed again before saving is unused.
-      final pending = _pendingAvatarPath;
-      if (pending != null && pending != _avatarPath) {
-        await _deleteAvatarQuietly(pending);
-      }
-    }
-
     if (!success) {
       final message =
           context.read<ProfileController>().errorMessage ??
@@ -163,8 +160,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message)),
       );
+
       return;
     }
+
+    _isSaved = true;
+
+    // A picked image that was removed again before saving is unused.
+    final pending = _pendingAvatarPath;
+
+    if (pending != null && pending != _avatarPath) {
+      await _deleteAvatarQuietly(pending);
+    }
+
+    if (!mounted) return;
 
     Navigator.of(context).pop();
   }
@@ -172,6 +181,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final hasAvatar = _avatarPath != null && !_removeAvatar;
+
+    final avatarFile = hasAvatar ? File(_avatarPath!) : null;
+
+    final avatarExists = avatarFile?.existsSync() ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -188,10 +203,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     CircleAvatar(
                       radius: 48,
-                      backgroundImage: _avatarPath != null && !_removeAvatar && File(_avatarPath!).existsSync()
-                          ? FileImage(File(_avatarPath!))
+                      backgroundImage: avatarExists
+                          ? FileImage(avatarFile!)
                           : null,
-                      child: _avatarPath == null || _removeAvatar
+                      child: !avatarExists
                           ? const Icon(
                         Icons.person_outline_rounded,
                         size: 42,
@@ -200,12 +215,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     const SizedBox(height: 12),
                     TextButton(
-                      onPressed: _pickImage,
+                      onPressed: _isSaving ? null : _pickImage,
                       child: const Text('Change photo'),
                     ),
-                    if (_avatarPath != null && !_removeAvatar)
+                    if (hasAvatar)
                       TextButton(
-                        onPressed: () {
+                        onPressed: _isSaving
+                            ? null
+                            : () {
                           setState(() {
                             _removeAvatar = true;
                             _avatarPath = null;
@@ -213,7 +230,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         },
                         child: Text(
                           'Remove photo',
-                          style: TextStyle(color: theme.colorScheme.error),
+                          style: TextStyle(
+                            color: theme.colorScheme.error,
+                          ),
                         ),
                       ),
                   ],
@@ -232,16 +251,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 controller: _nameController,
                 maxLength: Limits.userName,
                 textCapitalization: TextCapitalization.words,
+                enabled: !_isSaving,
                 decoration: const InputDecoration(
                   hintText: 'Your name',
                   counterText: '',
                 ),
                 validator: (value) {
-                  final error = Validators.userName(value?.trim() ?? '');
+                  final error = Validators.userName(
+                    value?.trim() ?? '',
+                  );
+
                   return switch (error) {
                     null => null,
-                    ValidationError.nameEmpty => 'Name is required',
-                    ValidationError.nameTooLong => 'Name cannot exceed ${Limits.userName} characters',
+                    ValidationError.nameEmpty =>
+                    'Name is required',
+                    ValidationError.nameTooLong =>
+                    'Name cannot exceed ${Limits.userName} characters',
                     _ => null,
                   };
                 },
@@ -259,6 +284,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 controller: _quoteController,
                 maxLength: Limits.quote,
                 maxLines: 3,
+                enabled: !_isSaving,
                 decoration: const InputDecoration(
                   hintText: 'Small steps count.',
                 ),
