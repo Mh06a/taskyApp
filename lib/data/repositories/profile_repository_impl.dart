@@ -1,6 +1,6 @@
 import 'package:tasky/core/utils/guard.dart';
 import 'package:tasky/core/utils/result.dart';
-import 'package:tasky/data/datasources/profile_local_data_source.dart';
+import 'package:tasky/data/datasources/local/profile_local_data_source.dart';
 import 'package:tasky/data/models/user_profile_model.dart';
 import 'package:tasky/domain/entities/user_profile.dart';
 import 'package:tasky/domain/repositories/profile_repository.dart';

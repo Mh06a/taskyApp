@@ -73,26 +73,45 @@ class DatabaseService {
     );
   }
 
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Keep this migration hook explicit. Schema changes must be incremental and
-    // non-destructive; do not drop user tables during upgrades.
+  Future<void> _onUpgrade(
+      Database db,
+      int oldVersion,
+      int newVersion,
+      ) async {
     if (oldVersion < 2) {
-      // Version 2 introduces migration infrastructure only; schema is unchanged.
+      // Version 2: existing migration infrastructure.
+    }
+
+    if (oldVersion < 3) {
+      await _createProfileTable(db);
     }
   }
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE ${TasksTable.name} (
-        ${TasksTable.id} TEXT PRIMARY KEY,
-        ${TasksTable.title} TEXT NOT NULL,
-        ${TasksTable.description} TEXT NOT NULL DEFAULT '',
-        ${TasksTable.priority} TEXT NOT NULL DEFAULT 'normal',
-        ${TasksTable.dueDate} INTEGER,
-        ${TasksTable.hasDueTime} INTEGER NOT NULL DEFAULT 0,
-        ${TasksTable.createdAt} INTEGER NOT NULL,
-        ${TasksTable.completedAt} INTEGER
-      )
-    ''');
+    CREATE TABLE ${TasksTable.name} (
+      ${TasksTable.id} TEXT PRIMARY KEY,
+      ${TasksTable.title} TEXT NOT NULL,
+      ${TasksTable.description} TEXT NOT NULL DEFAULT '',
+      ${TasksTable.priority} TEXT NOT NULL DEFAULT 'normal',
+      ${TasksTable.dueDate} INTEGER,
+      ${TasksTable.hasDueTime} INTEGER NOT NULL DEFAULT 0,
+      ${TasksTable.createdAt} INTEGER NOT NULL,
+      ${TasksTable.completedAt} INTEGER
+    )
+  ''');
+
+    await _createProfileTable(db);
+  }
+
+  Future<void> _createProfileTable(Database db) async {
+    await db.execute('''
+    CREATE TABLE ${ProfileTable.name} (
+      ${ProfileTable.id} INTEGER PRIMARY KEY,
+      ${ProfileTable.userName} TEXT NOT NULL,
+      ${ProfileTable.quote} TEXT NOT NULL DEFAULT '',
+      ${ProfileTable.avatarFile} TEXT
+    )
+  ''');
   }
 }

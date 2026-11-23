@@ -1,8 +1,8 @@
 import 'package:tasky/data/models/app_settings_model.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky/core/constants/storage_keys.dart';
 import 'package:tasky/core/errors/exceptions.dart';
+import 'package:tasky/data/services/preferences_manager.dart';
 
 
 
@@ -18,7 +18,7 @@ abstract interface class SettingsLocalDataSource {
 final class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   const SettingsLocalDataSourceImpl(this._preferences);
 
-  final SharedPreferences _preferences;
+  final PreferencesManager _preferences;
 
   //getSettings
   @override

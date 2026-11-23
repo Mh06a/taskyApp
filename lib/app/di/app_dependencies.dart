@@ -1,16 +1,16 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tasky/core/services/database_service.dart';
+import 'package:tasky/data/services/database_service.dart';
 import 'package:tasky/core/services/uuid_id_generator.dart';
-import 'package:tasky/data/datasources/avatar_storage_data_source.dart';
-import 'package:tasky/data/datasources/profile_local_data_source.dart';
-import 'package:tasky/data/datasources/onboarding_local_data_source.dart';
-import 'package:tasky/data/datasources/settings_local_data_source.dart';
-import 'package:tasky/data/datasources/tasks_local_data_source.dart';
+import 'package:tasky/data/datasources/local/avatar_storage_data_source.dart';
+import 'package:tasky/data/datasources/local/profile_local_data_source.dart';
+import 'package:tasky/data/datasources/local/onboarding_local_data_source.dart';
+import 'package:tasky/data/datasources/local/settings_local_data_source.dart';
+import 'package:tasky/data/datasources/local/tasks_local_data_source.dart';
 import 'package:tasky/data/repositories/avatar_repository_impl.dart';
 import 'package:tasky/data/repositories/profile_repository_impl.dart';
 import 'package:tasky/data/repositories/onboarding_repository_impl.dart';
 import 'package:tasky/data/repositories/settings_repository_impl.dart';
 import 'package:tasky/data/repositories/tasks_repository_impl.dart';
+import 'package:tasky/data/services/preferences_manager.dart';
 import 'package:tasky/domain/usecases/onboarding/get_onboarding_status.dart';
 import 'package:tasky/domain/usecases/onboarding/complete_onboarding.dart';
 import 'package:tasky/domain/usecases/profile/get_profile.dart';
@@ -50,18 +50,18 @@ class AppDependencies {
 
   static Future<AppDependencies> create() async {
     // External dependencies
-    final preferences = await SharedPreferences.getInstance();
+    final preferencesManager = await PreferencesManager.create();
     final database = DatabaseService();
 
     // Data sources
     final avatarStorage = AvatarStorageDataSource();
-    final onboardingDataSource = OnboardingLocalDataSourceImpl(preferences);
+    final onboardingDataSource = OnboardingLocalDataSourceImpl(preferencesManager);
     final tasksDataSource = TasksLocalDataSourceImpl(database);
     final profileDataSource = ProfileLocalDataSourceImpl(
-      preferences,
+      database,
       avatarStorage,
     );
-    final settingsDataSource = SettingsLocalDataSourceImpl(preferences);
+    final settingsDataSource = SettingsLocalDataSourceImpl(preferencesManager);
 
     // Repositories
     final avatarRepository = AvatarRepositoryImpl(storageService: avatarStorage);

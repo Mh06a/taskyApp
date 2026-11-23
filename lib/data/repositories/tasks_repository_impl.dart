@@ -1,7 +1,7 @@
 import 'package:tasky/core/errors/failure.dart';
 import 'package:tasky/core/utils/guard.dart';
 import 'package:tasky/core/utils/result.dart';
-import 'package:tasky/data/datasources/tasks_local_data_source.dart';
+import 'package:tasky/data/datasources/local/tasks_local_data_source.dart';
 import 'package:tasky/data/models/task_model.dart';
 import 'package:tasky/domain/entities/task.dart';
 import 'package:tasky/domain/repositories/tasks_repository.dart';

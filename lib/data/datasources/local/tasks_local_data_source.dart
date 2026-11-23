@@ -1,7 +1,7 @@
 import 'package:tasky/data/models/task_model.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tasky/core/constants/database_constants.dart';
-import 'package:tasky/core/services/database_service.dart';
+import 'package:tasky/data/services/database_service.dart';
 
 abstract interface class TasksLocalDataSource {
   Future<List<TaskModel>> getTasks();

@@ -1,6 +1,6 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tasky/core/constants/storage_keys.dart';
 import 'package:tasky/core/errors/exceptions.dart';
+import 'package:tasky/data/services/preferences_manager.dart';
 
 abstract interface class OnboardingLocalDataSource {
   bool isCompleted();
@@ -10,7 +10,7 @@ abstract interface class OnboardingLocalDataSource {
 
 final class OnboardingLocalDataSourceImpl implements OnboardingLocalDataSource {
   const OnboardingLocalDataSourceImpl(this._preferences);
-  final SharedPreferences _preferences;
+  final PreferencesManager _preferences;
 
   //isCompleted
   @override

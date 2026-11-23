@@ -1,6 +1,6 @@
 abstract final class DatabaseConstants {
   static const String name = 'tasky.db';
-  static const int version = 2;
+  static const int version = 3;
 }
 
 abstract final class TasksTable {
@@ -14,3 +14,14 @@ abstract final class TasksTable {
   static const String createdAt = 'created_at';
   static const String completedAt = 'completed_at';
 }
+
+abstract final class ProfileTable {
+  static const String name = 'profiles';
+  static const String id = 'id';
+  static const String userName = 'name';
+  static const String quote = 'quote';
+  static const String avatarFile = 'avatar_file';
+
+  static const int defaultId = 1;
+}
+

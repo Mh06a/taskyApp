@@ -1,4 +1,4 @@
-import 'package:tasky/data/datasources/onboarding_local_data_source.dart';
+import 'package:tasky/data/datasources/local/onboarding_local_data_source.dart';
 import 'package:tasky/domain/repositories/onboarding_repository.dart';
 
 final class OnboardingRepositoryImpl implements OnboardingRepository {
