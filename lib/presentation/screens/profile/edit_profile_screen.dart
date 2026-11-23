@@ -57,13 +57,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _nameController.dispose();
     _quoteController.dispose();
 
-    // Leaving without saving must not leave an unused copied image behind.
     final pending = _pendingAvatarPath;
+
     if (!_isSaved && pending != null) {
-      _avatarUseCase.deleteAvatar(pending);
+      _deleteAvatarQuietly(pending);
     }
 
     super.dispose();
+  }
+  void _showAvatarError(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _deleteAvatarQuietly(String path) async {
+    final result = await _avatarUseCase.deleteAvatar(path);
+
+    result.when(
+      ok: (_) {},
+      err: (failure) {
+        debugPrint('Failed to delete avatar: $failure');
+      },
+    );
   }
 
   Future<void> _pickImage() async {
@@ -73,18 +91,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         imageQuality: 85,
         maxWidth: 900,
       );
+
       if (image == null || !mounted) return;
 
-      final permanentPath = await _avatarUseCase.saveAvatar(image.path);
+      final saveResult = await _avatarUseCase.saveAvatar(image.path);
 
-      // A previous unsaved pick is replaced, so its copy is no longer needed.
+      final permanentPath = saveResult.when<String?>(
+        ok: (path) => path,
+        err: (failure) {
+          _showAvatarError('Could not save selected photo.');
+          debugPrint('Avatar save failed: $failure');
+          return null;
+        },
+      );
+
+      if (permanentPath == null) return;
+
       final previousPending = _pendingAvatarPath;
+
       if (previousPending != null) {
-        await _avatarUseCase.deleteAvatar(previousPending);
+        await _deleteAvatarQuietly(previousPending);
       }
 
       if (!mounted) {
-        await _avatarUseCase.deleteAvatar(permanentPath);
+        await _deleteAvatarQuietly(permanentPath);
         return;
       }
 
@@ -93,11 +123,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _avatarPath = permanentPath;
         _removeAvatar = false;
       });
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save selected photo.')),
-      );
+    } catch (e) {
+      _showAvatarError('Could not select photo.');
+      debugPrint('Image picker failed: $e');
     }
   }
 
@@ -123,7 +151,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // A picked image that was removed again before saving is unused.
       final pending = _pendingAvatarPath;
       if (pending != null && pending != _avatarPath) {
-        await _avatarUseCase.deleteAvatar(pending);
+        await _deleteAvatarQuietly(pending);
       }
     }
 

@@ -1,6 +1,7 @@
+import 'package:tasky/core/utils/result.dart';
 
 abstract class AvatarRepository {
-  Future<String> saveAvatar(String sourcePath);
+  Future<Result<String>> saveAvatar(String sourcePath);
 
-  Future<void> deleteAvatar(String path);
+  Future<Result<void>> deleteAvatar(String path);
 }

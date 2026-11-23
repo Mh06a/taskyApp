@@ -1,4 +1,7 @@
+import 'package:tasky/core/utils/result.dart';
+
 abstract interface class OnboardingRepository {
-  bool isCompleted();
-  Future<void> setCompleted();
+  Result<bool> isCompleted();
+
+  Future<Result<void>> setCompleted();
 }

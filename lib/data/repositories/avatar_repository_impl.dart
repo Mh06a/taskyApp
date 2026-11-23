@@ -1,3 +1,5 @@
+import 'package:tasky/core/utils/guard.dart';
+import 'package:tasky/core/utils/result.dart';
 import 'package:tasky/data/datasources/local/avatar_storage_data_source.dart';
 import 'package:tasky/domain/repositories/avatar_repository.dart';
 
@@ -9,12 +11,16 @@ class AvatarRepositoryImpl implements AvatarRepository {
   });
 
   @override
-  Future<String> saveAvatar(String sourcePath) {
-    return storageService.saveAvatar(sourcePath);
+  Future<Result<String>> saveAvatar(String sourcePath) {
+    return guard<String>(
+          () => storageService.saveAvatar(sourcePath),
+    );
   }
 
   @override
-  Future<void> deleteAvatar(String path) {
-    return storageService.deleteIfOwned(path);
+  Future<Result<void>> deleteAvatar(String path) {
+    return guard<void>(
+          () => storageService.deleteIfOwned(path),
+    );
   }
 }

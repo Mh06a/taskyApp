@@ -1,17 +1,18 @@
+import 'package:tasky/core/utils/result.dart';
 import 'package:tasky/domain/repositories/avatar_repository.dart';
 
-class AvatarUseCase {
-  final AvatarRepository repository;
-
-  AvatarUseCase({
+final class AvatarUseCase {
+  const AvatarUseCase({
     required this.repository,
   });
 
-  Future<String> saveAvatar(String sourcePath) {
+  final AvatarRepository repository;
+
+  Future<Result<String>> saveAvatar(String sourcePath) {
     return repository.saveAvatar(sourcePath);
   }
 
-  Future<void> deleteAvatar(String path) {
+  Future<Result<void>> deleteAvatar(String path) {
     return repository.deleteAvatar(path);
   }
 }

@@ -26,10 +26,20 @@ class SplashController {
   Future<SplashDestination> resolveDestination() async {
     final minimumDelay = Future<void>.delayed(minimumDuration);
 
-    // Settings first, so the theme and language are correct from the start.
     await _settingsController.loadSettings();
 
-    if (!_getOnboardingStatus()) {
+    final onboardingResult = _getOnboardingStatus();
+
+    final isOnboardingCompleted = onboardingResult.when<bool>(
+      ok: (value) => value,
+      err: (failure) {
+        throw StateError(
+          'Failed to load onboarding status: $failure',
+        );
+      },
+    );
+
+    if (!isOnboardingCompleted) {
       await minimumDelay;
       return SplashDestination.onboarding;
     }

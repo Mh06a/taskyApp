@@ -10,3 +10,11 @@ Future<Result<T>> guard<T>(
     return Err<T>(StorageFailure(cause: e));
   }
 }
+
+Result<T> guardSync<T>(T Function() action) {
+  try {
+    return Ok<T>(action());
+  } on Exception catch (e) {
+    return Err<T>(StorageFailure(cause: e));
+  }
+}
