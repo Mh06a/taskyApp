@@ -11,10 +11,10 @@ class SplashController {
     required ProfileController profileController,
     required TasksController tasksController,
     required GetOnboardingStatus getOnboardingStatus,
-  }) : _settingsController = settingsController,
-       _profileController = profileController,
-       _tasksController = tasksController,
-       _getOnboardingStatus = getOnboardingStatus;
+  })  : _settingsController = settingsController,
+        _profileController = profileController,
+        _tasksController = tasksController,
+        _getOnboardingStatus = getOnboardingStatus;
 
   static const Duration minimumDuration = Duration(milliseconds: 1200);
 

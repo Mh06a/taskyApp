@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/app_language.dart';
@@ -15,31 +16,36 @@ class SettingsController extends ChangeNotifier {
 
   final GetSettings _getSettings;
   final SaveSettings _saveSettings;
+
   AppSettings _settings = const AppSettings();
+
   AsyncStatus _loadStatus = AsyncStatus.initial;
   AsyncStatus _saveStatus = AsyncStatus.initial;
+
   String? _errorMessage;
 
   // State
   AppSettings get settings => _settings;
+
   AppThemeMode get themeMode => _settings.themeMode;
   AppLanguage get language => _settings.language;
+
   AsyncStatus get loadStatus => _loadStatus;
   AsyncStatus get saveStatus => _saveStatus;
+
   String? get errorMessage => _errorMessage;
 
   // Compatibility
   bool get isLoading => _loadStatus == AsyncStatus.loading;
+  bool get isSaving => _saveStatus == AsyncStatus.loading;
 
   // Theme
   ThemeMode get materialThemeMode {
     switch (_settings.themeMode) {
       case AppThemeMode.system:
         return ThemeMode.system;
-
       case AppThemeMode.light:
         return ThemeMode.light;
-
       case AppThemeMode.dark:
         return ThemeMode.dark;
     }
@@ -50,10 +56,8 @@ class SettingsController extends ChangeNotifier {
     switch (_settings.language) {
       case AppLanguage.system:
         return null;
-
       case AppLanguage.arabic:
         return const Locale('ar');
-
       case AppLanguage.english:
         return const Locale('en');
     }
@@ -61,30 +65,39 @@ class SettingsController extends ChangeNotifier {
 
   // Load
   Future<void> loadSettings() async {
+    if (isLoading) return;
+
     _loadStatus = AsyncStatus.loading;
     _errorMessage = null;
-
     notifyListeners();
 
-    final result = await _getSettings();
+    try {
+      final result = await _getSettings();
 
-    result.when(
-      ok: (settings) {
-        _settings = settings;
-        _loadStatus = AsyncStatus.success;
-      },
-      err: (failure) {
-        debugPrint('Controller load failed: $failure');
-        _loadStatus = AsyncStatus.failure;
-        _errorMessage = 'Something went wrong. Please try again.';
-      },
-    );
+      result.when(
+        ok: (settings) {
+          _settings = settings;
+          _loadStatus = AsyncStatus.success;
+        },
+        err: (failure) {
+          debugPrint('Controller load failed: $failure');
+          _loadStatus = AsyncStatus.failure;
+          _errorMessage = 'Something went wrong. Please try again.';
+        },
+      );
+    } catch (error) {
+      debugPrint('Controller load threw an exception: $error');
+      _loadStatus = AsyncStatus.failure;
+      _errorMessage = 'Something went wrong. Please try again.';
+    }
 
     notifyListeners();
   }
 
   // Update
   Future<bool> changeTheme(AppThemeMode mode) {
+    if (isSaving) return Future.value(false);
+
     final updated = _settings.copyWith(
       themeMode: mode,
     );
@@ -93,6 +106,8 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<bool> changeLanguage(AppLanguage language) {
+    if (isSaving) return Future.value(false);
+
     final updated = _settings.copyWith(
       language: language,
     );
@@ -102,6 +117,8 @@ class SettingsController extends ChangeNotifier {
 
   // Save
   Future<bool> _save(AppSettings updated) async {
+    if (isSaving) return false;
+
     final previous = _settings;
 
     _settings = updated;
@@ -110,35 +127,39 @@ class SettingsController extends ChangeNotifier {
 
     notifyListeners();
 
-    final result = await _saveSettings(updated);
-
     var success = false;
 
-    result.when(
-      ok: (_) {
-        _saveStatus = AsyncStatus.success;
-        success = true;
-      },
-      err: (failure) {
-        _settings = previous;
-        _saveStatus = AsyncStatus.failure;
-        _errorMessage = 'Something went wrong. Please try again.';
-      },
-    );
+    try {
+      final result = await _saveSettings(updated);
+
+      result.when(
+        ok: (_) {
+          _saveStatus = AsyncStatus.success;
+          success = true;
+        },
+        err: (failure) {
+          debugPrint('Controller save failed: $failure');
+          _settings = previous;
+          _saveStatus = AsyncStatus.failure;
+          _errorMessage = 'Something went wrong. Please try again.';
+        },
+      );
+    } catch (error) {
+      debugPrint('Controller save threw an exception: $error');
+      _settings = previous;
+      _saveStatus = AsyncStatus.failure;
+      _errorMessage = 'Something went wrong. Please try again.';
+    }
 
     notifyListeners();
-
     return success;
   }
 
   // Error
   void clearError() {
+    if (_errorMessage == null) return;
+
     _errorMessage = null;
-
-    if (_saveStatus == AsyncStatus.failure) {
-      _saveStatus = AsyncStatus.initial;
-    }
-
     notifyListeners();
   }
 }

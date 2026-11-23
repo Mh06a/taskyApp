@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/limits.dart';
 import 'package:tasky/core/enums/priority.dart';
@@ -6,20 +7,19 @@ import 'package:tasky/core/validators/validators.dart';
 import 'package:tasky/domain/entities/task.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 
-
 class TaskFormController extends ChangeNotifier {
   TaskFormController({
     required TasksController tasksController,
     Task? editingTask,
-  }) : _tasksController = tasksController,
-       _editingTask = editingTask,
-       titleController = TextEditingController(text: editingTask?.title),
-       descriptionController = TextEditingController(
-         text: editingTask?.description,
-       ),
-       _priority = editingTask?.priority ?? Priority.normal,
-       _dueDate = editingTask?.dueDate,
-       _hasDueTime = editingTask?.hasDueTime ?? false {
+  })  : _tasksController = tasksController,
+        _editingTask = editingTask,
+        titleController = TextEditingController(text: editingTask?.title),
+        descriptionController = TextEditingController(
+          text: editingTask?.description,
+        ),
+        _priority = editingTask?.priority ?? Priority.normal,
+        _dueDate = editingTask?.dueDate,
+        _hasDueTime = editingTask?.hasDueTime ?? false {
     titleController.addListener(_clearTitleError);
     descriptionController.addListener(_clearDescriptionError);
   }
@@ -34,43 +34,52 @@ class TaskFormController extends ChangeNotifier {
   DateTime? _dueDate;
   bool _hasDueTime;
   bool _isSaving = false;
+
   ValidationError? _titleError;
   ValidationError? _descriptionError;
 
+  // State
   bool get isEditing => _editingTask != null;
   Priority get priority => _priority;
   DateTime? get dueDate => _dueDate;
   bool get hasDueTime => _hasDueTime && _dueDate != null;
   bool get isSaving => _isSaving;
+
   DateTime get now => _tasksController.currentTime;
   String? get errorMessage => _tasksController.errorMessage;
 
   TimeOfDay? get time {
-    final dueDate = _dueDate;
+    final current = _dueDate;
 
-    return hasDueTime ? TimeOfDay.fromDateTime(dueDate!) : null;
+    return hasDueTime && current != null
+        ? TimeOfDay.fromDateTime(current)
+        : null;
   }
 
   String? get titleErrorText => switch (_titleError) {
     ValidationError.titleEmpty => 'Task title is required',
-    ValidationError.titleTooLong => 'Maximum ${Limits.taskTitle} characters',
+    ValidationError.titleTooLong =>
+    'Maximum ${Limits.taskTitle} characters',
     _ => null,
   };
 
   String? get descriptionErrorText => switch (_descriptionError) {
     ValidationError.descriptionTooLong =>
-      'Maximum ${Limits.taskDescription} characters',
+    'Maximum ${Limits.taskDescription} characters',
     _ => null,
   };
 
+  // Setters
   void setPriority(Priority value) {
+    if (_priority == value) return;
+
     _priority = value;
     notifyListeners();
   }
 
-
   void setDate(DateTime selected) {
     final current = _dueDate;
+
     final hour = hasDueTime ? current?.hour ?? 0 : 0;
     final minute = hasDueTime ? current?.minute ?? 0 : 0;
 
@@ -81,6 +90,7 @@ class TaskFormController extends ChangeNotifier {
       hour,
       minute,
     );
+
     notifyListeners();
   }
 
@@ -96,6 +106,7 @@ class TaskFormController extends ChangeNotifier {
       value.hour,
       value.minute,
     );
+
     _hasDueTime = true;
     notifyListeners();
   }
@@ -104,7 +115,11 @@ class TaskFormController extends ChangeNotifier {
     final current = _dueDate;
 
     if (current != null) {
-      _dueDate = DateTime(current.year, current.month, current.day);
+      _dueDate = DateTime(
+        current.year,
+        current.month,
+        current.day,
+      );
     }
 
     _hasDueTime = false;
@@ -117,6 +132,7 @@ class TaskFormController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Submit
   /// Validates and saves. Returns true when the task was stored.
   Future<bool> submit() async {
     if (_isSaving || !_validate()) return false;
@@ -124,57 +140,73 @@ class TaskFormController extends ChangeNotifier {
     _isSaving = true;
     notifyListeners();
 
-    final title = titleController.text.trim();
-    final description = descriptionController.text.trim();
+    try {
+      final title = titleController.text.trim();
+      final description = descriptionController.text.trim();
 
-    final editing = _editingTask;
+      final editing = _editingTask;
 
-    final saved = editing == null
-        ? await _tasksController.addNewTask(
-            title: title,
-            description: description,
-            priority: _priority,
-            dueDate: _dueDate,
-            hasDueTime: hasDueTime,
-          )
-        : await _tasksController.updateExistingTask(
-            editing.copyWith(
-              title: title,
-              description: description,
-              priority: _priority,
-              dueDate: _dueDate,
-              hasDueTime: hasDueTime,
-            ),
-          );
+      if (editing == null) {
+        return await _tasksController.addNewTask(
+          title: title,
+          description: description,
+          priority: _priority,
+          dueDate: _dueDate,
+          hasDueTime: hasDueTime,
+        );
+      }
 
-    _isSaving = false;
-    notifyListeners();
-
-    return saved;
+      return await _tasksController.updateExistingTask(
+        editing.copyWith(
+          title: title,
+          description: description,
+          priority: _priority,
+          dueDate: _dueDate,
+          hasDueTime: hasDueTime,
+        ),
+      );
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
   }
 
+  // Validation
   bool _validate() {
     _titleError = Validators.taskTitle(titleController.text.trim());
+
     _descriptionError = Validators.taskDescription(
       descriptionController.text.trim(),
     );
+
     notifyListeners();
 
     return _titleError == null && _descriptionError == null;
   }
 
-  void _clearTitleError() {
-    if (_titleError == null) return;
+  // Field errors
+  void _clearFieldError({
+    required ValidationError? error,
+    required void Function() onClear,
+  }) {
+    if (error == null) return;
 
-    _titleError = null;
+    onClear();
     notifyListeners();
   }
 
-  void _clearDescriptionError() {
-    if (_descriptionError == null) return;
+  void _clearTitleError() {
+    _clearFieldError(
+      error: _titleError,
+      onClear: () => _titleError = null,
+    );
+  }
 
-    _descriptionError = null;
-    notifyListeners();
+  void _clearDescriptionError() {
+    _clearFieldError(
+      error: _descriptionError,
+      onClear: () => _descriptionError = null,
+    );
   }
 
   @override
