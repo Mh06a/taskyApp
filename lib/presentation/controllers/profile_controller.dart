@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/domain/entities/user_profile.dart';
+import 'package:tasky/domain/usecases/profile/clear_user_data.dart';
 import 'package:tasky/domain/usecases/profile/get_profile.dart';
 import 'package:tasky/domain/usecases/profile/save_profile.dart';
-import 'package:tasky/domain/usecases/profile/clear_user_data.dart';
 
 class ProfileController extends ChangeNotifier {
   ProfileController({
@@ -27,6 +27,7 @@ class ProfileController extends ChangeNotifier {
   String? _errorMessage;
 
   // State
+
   UserProfile? get profile => _profile;
 
   AsyncStatus get loadStatus => _loadStatus;
@@ -40,14 +41,16 @@ class ProfileController extends ChangeNotifier {
   bool get isClearing => _clearStatus == AsyncStatus.loading;
 
   // Derived
+
   String get displayName {
     final name = _profile?.name.trim() ?? '';
     return name.isEmpty ? 'Your name' : name;
   }
 
   // Load
+
   Future<void> loadProfile() async {
-    if (isLoading) return;
+    if (isLoading || isSaving || isClearing) return;
 
     _loadStatus = AsyncStatus.loading;
     _errorMessage = null;
@@ -62,13 +65,13 @@ class ProfileController extends ChangeNotifier {
           _loadStatus = AsyncStatus.success;
         },
         err: (failure) {
-          debugPrint('Controller load failed: $failure');
+          debugPrint('Profile load failed: $failure');
           _loadStatus = AsyncStatus.failure;
           _errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
-      debugPrint('Controller load threw an exception: $error');
+      debugPrint('Profile load threw an exception: $error');
       _loadStatus = AsyncStatus.failure;
       _errorMessage = 'Something went wrong. Please try again.';
     }
@@ -77,13 +80,14 @@ class ProfileController extends ChangeNotifier {
   }
 
   // Save
+
   Future<bool> save({
     required String name,
     String quote = '',
     String? avatarPath,
     bool removeAvatar = false,
   }) async {
-    if (isSaving || isClearing) return false;
+    if (isLoading || isSaving || isClearing) return false;
 
     _saveStatus = AsyncStatus.loading;
     _errorMessage = null;
@@ -111,13 +115,13 @@ class ProfileController extends ChangeNotifier {
           success = true;
         },
         err: (failure) {
-          debugPrint('Controller save failed: $failure');
+          debugPrint('Profile save failed: $failure');
           _saveStatus = AsyncStatus.failure;
           _errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
-      debugPrint('Controller save threw an exception: $error');
+      debugPrint('Profile save threw an exception: $error');
       _saveStatus = AsyncStatus.failure;
       _errorMessage = 'Something went wrong. Please try again.';
     }
@@ -127,8 +131,9 @@ class ProfileController extends ChangeNotifier {
   }
 
   // Clear user data
+
   Future<bool> clearUserData() async {
-    if (isSaving || isClearing) return false;
+    if (isLoading || isSaving || isClearing) return false;
 
     _clearStatus = AsyncStatus.loading;
     _errorMessage = null;
@@ -146,13 +151,13 @@ class ProfileController extends ChangeNotifier {
           success = true;
         },
         err: (failure) {
-          debugPrint('Controller clear failed: $failure');
+          debugPrint('Profile clear failed: $failure');
           _clearStatus = AsyncStatus.failure;
           _errorMessage = 'Could not clear data. Please try again.';
         },
       );
     } catch (error) {
-      debugPrint('Controller clear threw an exception: $error');
+      debugPrint('Profile clear threw an exception: $error');
       _clearStatus = AsyncStatus.failure;
       _errorMessage = 'Could not clear data. Please try again.';
     }
@@ -162,6 +167,7 @@ class ProfileController extends ChangeNotifier {
   }
 
   // Error
+
   void clearError() {
     if (_errorMessage == null) return;
 

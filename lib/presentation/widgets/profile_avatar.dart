@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 
@@ -17,10 +16,8 @@ class ProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final resolvedSize = size ?? AppSizes.avatarMedium;
+
     final imagePath = path;
-    final hasFile = imagePath != null &&
-        imagePath.isNotEmpty &&
-        File(imagePath).existsSync();
 
     return Container(
       width: resolvedSize,
@@ -30,21 +27,22 @@ class ProfileAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         color: theme.colorScheme.primary.withValues(alpha: 0.12),
       ),
-      child: hasFile
-          ? Image.file(
+      child: imagePath == null || imagePath.isEmpty
+          ? _fallbackIcon(theme)
+          : Image.file(
         File(imagePath),
         fit: BoxFit.cover,
         width: resolvedSize,
         height: resolvedSize,
-        errorBuilder: (_, _, _) => _fallbackIcon(theme),
-      )
-          : _fallbackIcon(theme),
+        errorBuilder: (_, _,_) => _fallbackIcon(theme),
+      ),
     );
   }
 
   Widget _fallbackIcon(ThemeData theme) {
     return Icon(
       Icons.person_outline_rounded,
+      size: AppSizes.icon24,
       color: theme.colorScheme.primary,
     );
   }

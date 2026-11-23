@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
-import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/app_language.dart';
 import 'package:tasky/core/enums/app_theme_mode.dart';
+import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/domain/entities/app_settings.dart';
 import 'package:tasky/domain/usecases/settings/get_settings.dart';
 import 'package:tasky/domain/usecases/settings/save_settings.dart';
@@ -25,6 +24,7 @@ class SettingsController extends ChangeNotifier {
   String? _errorMessage;
 
   // State
+
   AppSettings get settings => _settings;
 
   AppThemeMode get themeMode => _settings.themeMode;
@@ -35,11 +35,11 @@ class SettingsController extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
 
-  // Compatibility
   bool get isLoading => _loadStatus == AsyncStatus.loading;
   bool get isSaving => _saveStatus == AsyncStatus.loading;
 
   // Theme
+
   ThemeMode get materialThemeMode {
     switch (_settings.themeMode) {
       case AppThemeMode.system:
@@ -52,6 +52,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   // Locale
+
   Locale? get locale {
     switch (_settings.language) {
       case AppLanguage.system:
@@ -64,8 +65,9 @@ class SettingsController extends ChangeNotifier {
   }
 
   // Load
+
   Future<void> loadSettings() async {
-    if (isLoading) return;
+    if (isLoading || isSaving) return;
 
     _loadStatus = AsyncStatus.loading;
     _errorMessage = null;
@@ -80,13 +82,13 @@ class SettingsController extends ChangeNotifier {
           _loadStatus = AsyncStatus.success;
         },
         err: (failure) {
-          debugPrint('Controller load failed: $failure');
+          debugPrint('Settings load failed: $failure');
           _loadStatus = AsyncStatus.failure;
           _errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
-      debugPrint('Controller load threw an exception: $error');
+      debugPrint('Settings load threw an exception: $error');
       _loadStatus = AsyncStatus.failure;
       _errorMessage = 'Something went wrong. Please try again.';
     }
@@ -94,30 +96,40 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Update
+  // Update theme
+
   Future<bool> changeTheme(AppThemeMode mode) {
-    if (isSaving) return Future.value(false);
+    if (isLoading || isSaving) {
+      return Future.value(false);
+    }
 
-    final updated = _settings.copyWith(
-      themeMode: mode,
-    );
+    if (_settings.themeMode == mode) {
+      return Future.value(true);
+    }
 
+    final updated = _settings.copyWith(themeMode: mode);
     return _save(updated);
   }
 
+  // Update language
+
   Future<bool> changeLanguage(AppLanguage language) {
-    if (isSaving) return Future.value(false);
+    if (isLoading || isSaving) {
+      return Future.value(false);
+    }
 
-    final updated = _settings.copyWith(
-      language: language,
-    );
+    if (_settings.language == language) {
+      return Future.value(true);
+    }
 
+    final updated = _settings.copyWith(language: language);
     return _save(updated);
   }
 
   // Save
+
   Future<bool> _save(AppSettings updated) async {
-    if (isSaving) return false;
+    if (isLoading || isSaving) return false;
 
     final previous = _settings;
 
@@ -138,14 +150,14 @@ class SettingsController extends ChangeNotifier {
           success = true;
         },
         err: (failure) {
-          debugPrint('Controller save failed: $failure');
+          debugPrint('Settings save failed: $failure');
           _settings = previous;
           _saveStatus = AsyncStatus.failure;
           _errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
-      debugPrint('Controller save threw an exception: $error');
+      debugPrint('Settings save threw an exception: $error');
       _settings = previous;
       _saveStatus = AsyncStatus.failure;
       _errorMessage = 'Something went wrong. Please try again.';
@@ -156,6 +168,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   // Error
+
   void clearError() {
     if (_errorMessage == null) return;
 

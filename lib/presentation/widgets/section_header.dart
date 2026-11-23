@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 
@@ -8,7 +7,10 @@ class SectionHeader extends StatelessWidget {
     required this.title,
     this.actionText,
     this.onAction,
-  });
+  }) : assert(
+  (actionText == null) == (onAction == null),
+  'actionText and onAction must be provided together.',
+  );
 
   final String title;
   final String? actionText;

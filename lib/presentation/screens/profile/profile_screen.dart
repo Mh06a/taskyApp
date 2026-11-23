@@ -37,7 +37,10 @@ class ProfileScreen extends StatelessWidget {
                 AppSizes.s28,
               ),
               children: [
-                Text('Your space', style: theme.textTheme.headlineLarge),
+                Text(
+                  'Your space',
+                  style: theme.textTheme.headlineLarge,
+                ),
                 SizedBox(height: AppSizes.s20),
                 ProfileSummaryCard(
                   displayName: profileController.displayName,
@@ -45,29 +48,39 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 SizedBox(height: AppSizes.s8),
                 TextButton(
-                  onPressed: () => Navigator.of(
-                    context,
-                  ).pushNamed(AppRoutes.editProfile),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(AppRoutes.editProfile);
+                  },
                   child: const Text('Edit profile'),
                 ),
                 SizedBox(height: AppSizes.s20),
-                Text('Preferences', style: theme.textTheme.titleMedium),
+                Text(
+                  'Preferences',
+                  style: theme.textTheme.titleMedium,
+                ),
                 SizedBox(height: AppSizes.s8),
                 SettingsTile(
-                  leading: const AppSvgIcon(assetPath: AppAssets.moonIcon),
+                  leading: const AppSvgIcon(
+                    assetPath: AppAssets.moonIcon,
+                  ),
                   title: 'Theme',
                   subtitle: _themeLabel(settingsController.themeMode),
                   onTap: () => AppearanceSheet.show(context),
                 ),
                 SizedBox(height: AppSizes.s8),
                 SettingsTile(
-                  leading: const AppSvgIcon(assetPath: AppAssets.languageIcon),
+                  leading: const AppSvgIcon(
+                    assetPath: AppAssets.languageIcon,
+                  ),
                   title: 'Language',
                   subtitle: _languageLabel(settingsController.language),
                   onTap: () => LanguageSheet.show(context),
                 ),
                 SizedBox(height: AppSizes.s24),
-                Text('Your data', style: theme.textTheme.titleMedium),
+                Text(
+                  'Your data',
+                  style: theme.textTheme.titleMedium,
+                ),
                 SizedBox(height: AppSizes.s8),
                 SettingsTile(
                   icon: Icons.storage_outlined,
@@ -90,12 +103,16 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.info_outline_rounded,
                   title: 'About ${AppInfo.name}',
                   subtitle: 'Version ${AppInfo.version}',
-                  onTap: () =>
-                      _showAbout(context, 'A little focus. A lighter day.'),
+                  onTap: () => _showAbout(
+                    context,
+                    'A little focus. A lighter day.',
+                  ),
                 ),
                 SizedBox(height: AppSizes.s8),
                 SettingsTile(
-                  leading: const AppSvgIcon(assetPath: AppAssets.recycleBinIcon),
+                  leading: const AppSvgIcon(
+                    assetPath: AppAssets.recycleBinIcon,
+                  ),
                   title: 'Clear all data',
                   subtitle: 'Remove tasks and profile from this device',
                   onTap: () => _clearAllData(context),
@@ -120,37 +137,52 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       applicationName: AppInfo.name,
       applicationVersion: AppInfo.version,
-      children: [Text(message)],
+      children: [
+        Text(message),
+      ],
     );
   }
 
   Future<void> _contactSupport(BuildContext context) async {
     final messenger = ScaffoldMessenger.of(context);
+
     final uri = Uri(
       scheme: 'mailto',
       path: AppInfo.supportEmail,
-      queryParameters: {'subject': '${AppInfo.name} Support'},
+      queryParameters: {
+        'subject': '${AppInfo.name} Support',
+      },
     );
 
     if (await launchUrl(uri)) return;
 
-    await Clipboard.setData(const ClipboardData(text: AppInfo.supportEmail));
+    await Clipboard.setData(
+      const ClipboardData(text: AppInfo.supportEmail),
+    );
+
+    if (!context.mounted) return;
 
     messenger.showSnackBar(
-      const SnackBar(content: Text('Support email copied to clipboard.')),
+      const SnackBar(
+        content: Text('Support email copied to clipboard.'),
+      ),
     );
   }
 
   Future<void> _clearAllData(BuildContext context) async {
-    if (!await ClearDataDialog.confirm(context)) return;
-    if (!context.mounted) return;
+    final confirmed = await ClearDataDialog.confirm(context);
+
+    if (!confirmed || !context.mounted) return;
 
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
+
     final profileController = context.read<ProfileController>();
     final tasksController = context.read<TasksController>();
 
     final cleared = await profileController.clearUserData();
+
+    if (!context.mounted) return;
 
     if (!cleared) {
       messenger.showSnackBar(
@@ -165,11 +197,15 @@ class ProfileScreen extends StatelessWidget {
 
     tasksController.clearLocalTasks();
 
-    // The profile no longer exists, so the user starts again from Welcome.
-    await navigator.pushNamedAndRemoveUntil(AppRoutes.welcome, (_) => false);
+    await navigator.pushNamedAndRemoveUntil(
+      AppRoutes.welcome,
+          (_) => false,
+    );
 
     messenger.showSnackBar(
-      const SnackBar(content: Text('All personal data has been cleared.')),
+      const SnackBar(
+        content: Text('All personal data has been cleared.'),
+      ),
     );
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/task_status_filter.dart';
 import 'package:tasky/domain/entities/task.dart';
-import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 import 'package:tasky/presentation/formatters/task_date_formatter.dart';
@@ -17,15 +17,14 @@ import 'package:tasky/presentation/widgets/section_header.dart';
 import 'package:tasky/presentation/widgets/task_card.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onSeeAllHighPriority});
+  const HomeScreen({
+    super.key,
+    required this.onSeeAllHighPriority,
+  });
 
   final VoidCallback onSeeAllHighPriority;
 
-
-  void _openDetails(
-      BuildContext context,
-      Task task,
-      ) {
+  void _openDetails(BuildContext context, Task task) {
     Navigator.of(context).pushNamed(
       AppRoutes.taskDetails,
       arguments: task.id,
@@ -34,6 +33,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+
     return Consumer2<TasksController, ProfileController>(
       builder: (
           context,
@@ -55,48 +56,50 @@ class HomeScreen extends StatelessWidget {
                   profileController.loadProfile(),
                 ]);
               },
-
               child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(
                   AppSizes.s20,
                   AppSizes.s16,
                   AppSizes.s20,
                   AppSizes.bottomContentPadding,
                 ),
-
                 children: [
                   HomeHeader(
                     name: profileController.displayName,
-                    avatarPath:
-                    profileController.profile?.avatarPath,
-                    date: TaskDateFormatter.formatHeaderDate(now, locale: 'en'),
+                    avatarPath: profileController.profile?.avatarPath,
+                    date: TaskDateFormatter.formatHeaderDate(
+                      now,
+                      locale: locale,
+                    ),
                     now: now,
                   ),
-
                   SizedBox(height: AppSizes.s24),
-
                   ProgressCard(
                     total: stats.total,
                     done: stats.done,
                     percent: stats.percent,
                   ),
-
                   SizedBox(height: AppSizes.s24),
-
                   SectionHeader(
                     title: 'High priority',
-                    actionText: highPriorityTasks.length > 3 ? 'See all' : null,
-                    onAction: highPriorityTasks.length > 3 ? () {
-                      tasksController.changeStatus(TaskStatusFilter.todo);
+                    actionText:
+                    highPriorityTasks.length > 3 ? 'See all' : null,
+                    onAction: highPriorityTasks.length > 3
+                        ? () {
+                      tasksController.changeStatus(
+                        TaskStatusFilter.todo,
+                      );
                       tasksController.toggleHighPriorityFilter(true);
                       onSeeAllHighPriority();
-                    } : null,
+                    }
+                        : null,
                   ),
-
                   SizedBox(height: AppSizes.s8),
-
                   if (tasksController.loadStatus == AsyncStatus.initial ||
-                      (tasksController.loadStatus == AsyncStatus.loading && highPriorityTasks.isEmpty && todayTasks.isEmpty))
+                      (tasksController.loadStatus == AsyncStatus.loading &&
+                          highPriorityTasks.isEmpty &&
+                          todayTasks.isEmpty))
                     const Center(
                       child: CircularProgressIndicator(),
                     )
@@ -112,23 +115,19 @@ class HomeScreen extends StatelessWidget {
                         return TaskCard(
                           task: task,
                           now: now,
-                          onTap: () => _openDetails(
+                          onTap: () => _openDetails(context, task),
+                          onToggle: () => TaskToggleAction.run(
                             context,
                             task,
                           ),
-                          onToggle: () => TaskToggleAction.run(context, task),
                         );
                       },
                     ),
-
                   SizedBox(height: AppSizes.s24),
-
                   TodayTasksSection(
                     tasks: todayTasks,
                     now: now,
-                    onTaskTap: (task) {
-                      _openDetails(context, task);
-                    },
+                    onTaskTap: (task) => _openDetails(context, task),
                     onTaskToggle: (task) {
                       TaskToggleAction.run(context, task);
                     },

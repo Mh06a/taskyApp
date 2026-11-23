@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tasky/core/constants/limits.dart';
@@ -17,6 +18,7 @@ class EditProfileController extends ChangeNotifier {
         _saveAvatar = saveAvatar,
         _deleteAvatarUseCase = deleteAvatar {
     final profile = profileController.profile;
+
     _name = profile?.name ?? '';
     _quote = profile?.quote ?? '';
     _avatarPath = profile?.avatarPath;
@@ -27,47 +29,63 @@ class EditProfileController extends ChangeNotifier {
   final SaveAvatarUseCase _saveAvatar;
   final DeleteAvatarUseCase _deleteAvatarUseCase;
   final ImagePicker _imagePicker = ImagePicker();
-
   String _name = '';
   String _quote = '';
   String? _avatarPath;
   String? _originalAvatarPath;
   String? _pendingAvatarPath;
-
   String? nameError;
   String? quoteError;
   String? errorMessage;
-
   AsyncStatus saveStatus = AsyncStatus.initial;
   bool isPickingAvatar = false;
   bool _validated = false;
   bool _disposed = false;
 
+  // State
   String get name => _name;
   String get quote => _quote;
   String? get avatarPath => _avatarPath;
-
   bool get hasAvatar => _avatarPath != null;
   bool get isSaving => saveStatus == AsyncStatus.loading;
   bool get isBusy => isSaving || isPickingAvatar;
 
+  // Update fields
   void updateName(String value) {
+    if (_disposed) return;
+
     _name = value;
-    if (_validated) _validateName();
+
+    if (_validated) {
+      _validateName();
+    }
+
     notifyListeners();
   }
 
   void updateQuote(String value) {
+    if (_disposed) return;
+
     _quote = value;
-    if (_validated) _validateQuote();
+
+    if (_validated) {
+      _validateQuote();
+    }
+
     notifyListeners();
   }
 
+  // Validation
   bool validate() {
+    if (_disposed) return false;
+
     _validated = true;
+
     _validateName();
     _validateQuote();
+
     notifyListeners();
+
     return nameError == null && quoteError == null;
   }
 
@@ -90,11 +108,13 @@ class EditProfileController extends ChangeNotifier {
     };
   }
 
+  // Avatar
   Future<void> pickAvatar() async {
-    if (isBusy) return;
+    if (_disposed || isBusy) return;
 
     isPickingAvatar = true;
     errorMessage = null;
+
     notifyListeners();
 
     String? savedPath;
@@ -114,7 +134,11 @@ class EditProfileController extends ChangeNotifier {
         ok: (path) => path,
         err: (failure) {
           debugPrint('Avatar save failed: $failure');
-          errorMessage = 'Could not save selected photo.';
+
+          if (!_disposed) {
+            errorMessage = 'Could not save selected photo.';
+          }
+
           return null;
         },
       );
@@ -127,36 +151,53 @@ class EditProfileController extends ChangeNotifier {
         return;
       }
 
-      final previous = _pendingAvatarPath;
+      final previousPendingPath = _pendingAvatarPath;
 
       _pendingAvatarPath = savedPath;
       _avatarPath = savedPath;
+
       savedPath = null;
 
-      if (previous != null) await _cleanupAvatar(previous);
+      if (previousPendingPath != null) {
+        await _cleanupAvatar(previousPendingPath);
+      }
     } catch (error) {
       debugPrint('Avatar selection failed: $error');
-      errorMessage = 'Could not select photo.';
+
+      if (!_disposed) {
+        errorMessage = 'Could not select photo.';
+      }
     } finally {
-      if (savedPath != null) await _cleanupAvatar(savedPath);
+      if (savedPath != null) {
+        await _cleanupAvatar(savedPath);
+      }
+
       isPickingAvatar = false;
-      if (!_disposed) notifyListeners();
+
+      if (!_disposed) {
+        notifyListeners();
+      }
     }
   }
 
   void removeAvatar() {
-    if (isBusy || !hasAvatar) return;
+    if (_disposed || isBusy || !hasAvatar) return;
 
     _avatarPath = null;
     errorMessage = null;
+
     notifyListeners();
   }
 
+  // Save profile
   Future<bool> save() async {
-    if (isBusy || !validate()) return false;
+    if (_disposed || isBusy || !validate()) {
+      return false;
+    }
 
     saveStatus = AsyncStatus.loading;
     errorMessage = null;
+
     notifyListeners();
 
     try {
@@ -168,32 +209,71 @@ class EditProfileController extends ChangeNotifier {
             _originalAvatarPath != null,
       );
 
+      if (success) {
+        await _cleanupUncommittedAvatar();
+
+        _originalAvatarPath =
+            _profileController.profile?.avatarPath;
+
+        _pendingAvatarPath = null;
+      } else if (_disposed) {
+        await _cleanupPendingAvatar();
+      }
+
       saveStatus = success
           ? AsyncStatus.success
           : AsyncStatus.failure;
 
-      if (!success) {
+      if (!success && !_disposed) {
         errorMessage = _profileController.errorMessage ??
             'Could not save profile.';
-      } else {
-        final pending = _pendingAvatarPath;
-
-        if (pending != null &&
-            pending != _profileController.profile?.avatarPath) {
-          await _cleanupAvatar(pending);
-        }
-
-        _pendingAvatarPath = null;
       }
 
-      notifyListeners();
+      if (!_disposed) {
+        notifyListeners();
+      }
+
       return success;
     } catch (error) {
       debugPrint('Profile save failed: $error');
+
       saveStatus = AsyncStatus.failure;
-      errorMessage = 'Could not save profile.';
-      notifyListeners();
+
+      if (_disposed) {
+        await _cleanupPendingAvatar();
+      } else {
+        errorMessage = 'Could not save profile.';
+        notifyListeners();
+      }
+
       return false;
+    }
+  }
+
+  // Avatar cleanup
+  Future<void> _cleanupUncommittedAvatar() async {
+    final pendingPath = _pendingAvatarPath;
+
+    if (pendingPath == null) return;
+
+    final savedPath = _profileController.profile?.avatarPath;
+
+    if (pendingPath != savedPath) {
+      await _cleanupAvatar(pendingPath);
+    }
+  }
+
+  Future<void> _cleanupPendingAvatar() async {
+    final pendingPath = _pendingAvatarPath;
+
+    if (pendingPath == null) return;
+
+    _pendingAvatarPath = null;
+
+    final savedPath = _profileController.profile?.avatarPath;
+
+    if (pendingPath != savedPath) {
+      await _cleanupAvatar(pendingPath);
     }
   }
 
@@ -212,15 +292,15 @@ class EditProfileController extends ChangeNotifier {
     }
   }
 
+  // Dispose
   @override
   void dispose() {
     _disposed = true;
 
-    final pending = _pendingAvatarPath;
-
-    if (pending != null &&
-        pending != _profileController.profile?.avatarPath) {
-      _cleanupAvatar(pending);
+    // If a profile save is running, let save() handle cleanup
+    // after the operation completes.
+    if (!isSaving) {
+      unawaited(_cleanupPendingAvatar());
     }
 
     super.dispose();
