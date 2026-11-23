@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/domain/entities/user_profile.dart';
@@ -36,7 +35,6 @@ class ProfileController extends ChangeNotifier {
 
   String? get errorMessage => _errorMessage;
 
-  // Compatibility
   bool get isLoading => _loadStatus == AsyncStatus.loading;
   bool get isSaving => _saveStatus == AsyncStatus.loading;
   bool get isClearing => _clearStatus == AsyncStatus.loading;
