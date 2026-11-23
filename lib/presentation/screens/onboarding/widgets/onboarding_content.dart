@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
-import 'package:tasky/presentation/screens/onboarding/models/onboarding_page_model.dart';
+import 'package:tasky/presentation/screens/onboarding/models/onboarding_item.dart';
 
-class OnboardingPage extends StatelessWidget {
-  const OnboardingPage({
+class OnboardingContent extends StatelessWidget {
+  const OnboardingContent({
     super.key,
-    required this.page,
+    required this.item,
   });
 
-  final OnboardingPageModel page;
+  final OnboardingItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -20,37 +20,37 @@ class OnboardingPage extends StatelessWidget {
         Expanded(
           flex: 6,
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding:  EdgeInsets.symmetric(
               horizontal: AppSizes.s16,
             ),
             child: Image.asset(
-              page.imagePath,
+              item.imagePath,
               fit: BoxFit.contain,
               width: double.infinity,
             ),
           ),
         ),
 
-        SizedBox(height: AppSizes.s32),
+         SizedBox(height: AppSizes.s32),
 
         Expanded(
           flex: 3,
           child: Padding(
-            padding: EdgeInsets.symmetric(
+            padding:  EdgeInsets.symmetric(
               horizontal: AppSizes.s8,
             ),
             child: Column(
               children: [
                 Text(
-                  page.title,
+                  item.title,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.headlineMedium,
                 ),
 
-                SizedBox(height: AppSizes.s16),
+                 SizedBox(height: AppSizes.s16),
 
                 Text(
-                  page.description,
+                  item.description,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,

@@ -1,65 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/presentation/controllers/onboarding_controller.dart';
 import 'package:tasky/presentation/screens/onboarding/data/onboarding_data.dart';
-import 'package:tasky/domain/usecases/onboarding/complete_onboarding.dart';
-import 'package:tasky/presentation/screens/onboarding/widgets/onboarding_page.dart';
+import 'package:tasky/presentation/screens/onboarding/widgets/onboarding_content.dart';
+import 'package:tasky/presentation/screens/onboarding/widgets/onboarding_indicator.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() =>
-      _OnboardingScreenState();
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   late final PageController _pageController;
 
-  int _currentPage = 0;
-  bool _isFinishing = false;
-
   bool get _isLastPage =>
-      _currentPage == OnboardingData.pages.length - 1;
+      context.read<OnboardingController>().currentPage ==
+          OnboardingData.pages.length - 1;
 
   @override
   void initState() {
     super.initState();
-
     _pageController = PageController();
   }
 
+  // Complete onboarding and navigate to the welcome screen.
   Future<void> _finishOnboarding() async {
-    if (_isFinishing) return;
+    final success = await context
+        .read<OnboardingController>()
+        .finishOnboarding();
 
-    setState(() {
-      _isFinishing = true;
-    });
+    if (!mounted) return;
 
-    try {
-      await context.read<CompleteOnboarding>().call();
-
-      if (!mounted) return;
-
+    if (success) {
       Navigator.of(context).pushReplacementNamed(AppRoutes.welcome);
-    } catch (_) {
-      if (!mounted) return;
-
-      setState(() {
-        _isFinishing = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Something went wrong. Please try again.'),
-        ),
-      );
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Something went wrong. Please try again.'),
+      ),
+    );
   }
 
+  // Move to the next page or finish onboarding.
   void _nextPage() {
     if (_isLastPage) {
       _finishOnboarding();
@@ -72,10 +61,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  void _skipOnboarding() {
-    _finishOnboarding();
-  }
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -84,25 +69,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final controller = context.watch<OnboardingController>();
+
+    final isLastPage =
+        controller.currentPage == OnboardingData.pages.length - 1;
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(AppSizes.s24),
+          padding:  EdgeInsets.all(AppSizes.s24),
           child: Column(
             children: [
               SizedBox(
                 height: AppSizes.buttonHeight,
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: _isLastPage
+                  child: isLastPage
                       ? const SizedBox.shrink()
                       : TextButton(
-                    onPressed: _skipOnboarding,
+                    onPressed: controller.isFinishing
+                        ? null
+                        : _finishOnboarding,
                     child: Text(
                       'Skip',
-                      style: theme.textTheme.labelLarge,
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),
                 ),
@@ -112,41 +102,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: PageView.builder(
                   controller: _pageController,
                   itemCount: OnboardingData.pages.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
+                  onPageChanged: controller.updatePage,
                   itemBuilder: (context, index) {
-                    return OnboardingPage(
-                      page: OnboardingData.pages[index],
+                    return OnboardingContent(
+                      item: OnboardingData.pages[index],
                     );
                   },
                 ),
               ),
 
-              SmoothPageIndicator(
+              OnboardingIndicator(
                 controller: _pageController,
                 count: OnboardingData.pages.length,
-                effect: ExpandingDotsEffect(
-                  activeDotColor: theme.colorScheme.primary,
-                  dotColor: theme.colorScheme.outlineVariant,
-                  dotHeight: AppSizes.s8,
-                  dotWidth: AppSizes.s8,
-                  expansionFactor: 3,
-                  spacing: AppSizes.s8,
-                ),
               ),
 
-              SizedBox(height: AppSizes.s24),
+               SizedBox(height: AppSizes.s24),
 
               AppButton(
-                text: _isLastPage ? 'Get started' : 'Continue',
-                onPressed: _isFinishing ? null : _nextPage,
-                isLoading: _isFinishing,
+                text: isLastPage ? 'Get started' : 'Continue',
+                onPressed: controller.isFinishing ? null : _nextPage,
+                isLoading: controller.isFinishing,
               ),
 
-              SizedBox(height: AppSizes.s8),
+               SizedBox(height: AppSizes.s8),
             ],
           ),
         ),

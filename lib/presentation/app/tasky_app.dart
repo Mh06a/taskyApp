@@ -10,6 +10,7 @@ import 'package:tasky/domain/usecases/onboarding/get_onboarding_status.dart';
 import 'package:tasky/domain/usecases/profile/delete_avatar_usecase.dart';
 import 'package:tasky/domain/usecases/profile/save_avatar_usecase.dart';
 import 'package:tasky/presentation/app/app_router.dart';
+import 'package:tasky/presentation/controllers/onboarding_controller.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/controllers/settings_controller.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
@@ -47,6 +48,12 @@ class TaskyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<SettingsController>.value(
           value: dependencies.settingsController,
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) => OnboardingController(
+            completeOnboarding: context.read<CompleteOnboarding>(),
+          ),
         ),
       ],
       child: ScreenUtilInit(

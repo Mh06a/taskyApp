@@ -1,5 +1,5 @@
-class OnboardingPageModel {
-  const OnboardingPageModel({
+class OnboardingItem {
+  const OnboardingItem({
     required this.title,
     required this.description,
     required this.imagePath,
