@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_assets.dart';
-
+import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/enums/priority.dart';
 import 'package:tasky/domain/entities/task.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
-import 'package:tasky/core/constants/app_routes.dart';
+import 'package:tasky/presentation/formatters/task_date_formatter.dart';
 import 'package:tasky/presentation/screens/tasks/widgets/task_detail_row.dart';
 import 'package:tasky/presentation/screens/tasks/widgets/task_status_badge.dart';
-import 'package:tasky/presentation/widgets/task_toggle_action.dart';
 import 'package:tasky/presentation/widgets/priority_chip.dart';
-import 'package:tasky/core/enums/priority.dart';
+import 'package:tasky/presentation/widgets/task_toggle_action.dart';
 
 class TaskDetailsScreen extends StatelessWidget {
   const TaskDetailsScreen({
@@ -20,45 +20,51 @@ class TaskDetailsScreen extends StatelessWidget {
 
   final String taskId;
 
-  Future<void> _editTask(BuildContext context, Task currentTask) {
+  Future<void> _editTask(BuildContext context, Task task) {
     return Navigator.of(context).pushNamed(
       AppRoutes.taskForm,
-      arguments: currentTask,
+      arguments: task,
     );
   }
 
   Future<void> _deleteTask(
-    BuildContext context,
-    TasksController controller,
-    Task currentTask,
-  ) async {
-    // Captured before pop: the context is gone once this screen closes.
+      BuildContext context,
+      TasksController controller,
+      Task task,
+      ) async {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
-    final success = await controller.removeTask(currentTask);
+    final success = await controller.removeTask(task);
+
+    if (!context.mounted) return;
 
     if (!success) {
       messenger.showSnackBar(
         SnackBar(
-          content: Text(controller.errorMessage ?? 'Could not delete task.'),
+          content: Text(
+            controller.errorMessage ?? 'Could not delete task.',
+          ),
         ),
       );
       return;
     }
 
     navigator.pop();
+
     messenger.showSnackBar(
       SnackBar(
         content: const Text('Task deleted.'),
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () async {
-            final restored = await controller.restoreTask(currentTask);
+            final restored = await controller.restoreTask(task);
 
             if (!restored) {
               messenger.showSnackBar(
-                const SnackBar(content: Text('Could not restore task.')),
+                const SnackBar(
+                  content: Text('Could not restore task.'),
+                ),
               );
             }
           },
@@ -69,137 +75,147 @@ class TaskDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Consumer<TasksController>(
       builder: (context, controller, child) {
-        Task? currentTask;
+        final task = controller.findTaskById(taskId);
 
-        for (final item in controller.tasks) {
-          if (item.id == taskId) {
-            currentTask = item;
-            break;
-          }
-        }
-
-        if (currentTask == null) {
+        if (task == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Task details')),
-            body: const Center(
-              child: Text('This task is no longer available.'),
+            appBar: AppBar(
+              title: const Text('Task details'),
+            ),
+            body: Center(
+              child: Text(
+                controller.isLoading
+                    ? 'Loading task...'
+                    : 'This task is no longer available.',
+              ),
             ),
           );
         }
 
-        final current = currentTask;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Task details'),
-            actions: [
-              IconButton(
-                tooltip: 'Edit',
-                onPressed: () => _editTask(context, current),
-                icon: const Icon(Icons.edit_outlined),
-              ),
-              IconButton(
-                tooltip: 'Delete',
-                onPressed: () => _deleteTask(
-                  context,
-                  controller,
-                  current,
-                ),
-                icon: const Icon(Icons.delete_outline_rounded),
-              ),
-            ],
-          ),
-          body: SafeArea(
-            child: ListView(
-              padding: EdgeInsets.all(AppSizes.s20),
-              children: [
-                Row(
-                  children: [
-                    TaskStatusBadge(
-                      label: current.isDone ? 'Done' : 'To do',
-                      isDone: current.isDone,
-                    ),
-                    SizedBox(width: AppSizes.s8),
-                    if (current.isHighPriority)
-                      const PriorityChip(priority: Priority.high),
-                  ],
-                ),
-                SizedBox(height: AppSizes.s24),
-                Text(
-                  current.title,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    decoration: current.isDone
-                        ? TextDecoration.lineThrough
-                        : null,
-                  ),
-                ),
-                SizedBox(height: AppSizes.s12),
-                Text(
-                  current.description.isEmpty
-                      ? 'No description added.'
-                      : current.description,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    height: AppSizes.lineHeightNormal,
-                  ),
-                ),
-                SizedBox(height: AppSizes.s24),
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(AppSizes.r16),
-                  ),
-                  child: Column(
-                    children: [
-                      TaskDetailRow(
-                        title: 'Due',
-                        value: _formatDate(context, current.dueDate, hasTime: current.hasDueTime),
-                        icon: AppAssets.dateIcon,
-                      ),
-                      TaskDetailRow(
-                        title: 'Priority',
-                        value: current.isHighPriority ? 'High' : 'Normal',
-                        icon: AppAssets.flagIcon,
-                      ),
-                      TaskDetailRow(
-                        title: 'Created',
-                        value: _formatDate(context, current.createdAt),
-                        icon: AppAssets.clockIcon,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: AppSizes.s32),
-                FilledButton(
-                  onPressed: () => TaskToggleAction.run(context, current),
-                  child: Text(
-                    current.isDone ? 'Mark as to do' : 'Mark as done',
-                  ),
-                ),
-                SizedBox(height: AppSizes.s12),
-                OutlinedButton(
-                  onPressed: () => _editTask(context, current),
-                  child: const Text('Edit'),
-                ),
-              ],
-            ),
-          ),
-        );
+        return _buildContent(context, controller, task);
       },
     );
   }
 
-  String _formatDate(BuildContext context, DateTime? date, {bool hasTime = false}) {
-    if (date == null) return 'Not set';
-    final localizations = MaterialLocalizations.of(context);
-    final dateText = localizations.formatMediumDate(date);
-    if (!hasTime) return dateText;
-    return '$dateText · ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(date))}';
+  Widget _buildContent(
+      BuildContext context,
+      TasksController controller,
+      Task task,
+      ) {
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final now = controller.currentTime;
+
+    final dueDateText = task.dueDate == null
+        ? 'Not set'
+        : TaskDateFormatter.formatDueDateTime(
+      task.dueDate!,
+      hasDueTime: task.hasDueTime,
+      locale: locale,
+      now: now,
+    );
+
+    final createdDateText = TaskDateFormatter.formatHeaderDate(
+      task.createdAt,
+      locale: locale,
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Task details'),
+        actions: [
+          TextButton(
+            onPressed: () => _editTask(context, task),
+            child: const Text('Edit'),
+          ),
+          TextButton(
+            onPressed: controller.isTaskBusy(task.id)
+                ? null
+                : () => _deleteTask(context, controller, task),
+            child: Text(
+              'Delete',
+              style: TextStyle(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.all(AppSizes.s20),
+          children: [
+            Row(
+              children: [
+                TaskStatusBadge(
+                  label: task.isDone ? 'Done' : 'To do',
+                  isDone: task.isDone,
+                ),
+                SizedBox(width: AppSizes.s8),
+                if (task.isHighPriority)
+                  const PriorityChip(priority: Priority.high),
+              ],
+            ),
+            SizedBox(height: AppSizes.s24),
+            Text(
+              task.title,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                decoration: task.isDone
+                    ? TextDecoration.lineThrough
+                    : null,
+              ),
+            ),
+            SizedBox(height: AppSizes.s12),
+            Text(
+              task.description.isEmpty
+                  ? 'No description added.'
+                  : task.description,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: AppSizes.lineHeightNormal,
+              ),
+            ),
+            SizedBox(height: AppSizes.s24),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(AppSizes.r16),
+              ),
+              child: Column(
+                children: [
+                  TaskDetailRow(
+                    title: 'Due',
+                    value: dueDateText,
+                    icon: AppAssets.dateIcon,
+                  ),
+                  TaskDetailRow(
+                    title: 'Priority',
+                    value: task.isHighPriority ? 'High' : 'Normal',
+                    icon: AppAssets.flagIcon,
+                  ),
+                  TaskDetailRow(
+                    title: 'Created',
+                    value: createdDateText,
+                    icon: AppAssets.clockIcon,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: AppSizes.s32),
+            FilledButton(
+              onPressed: controller.isTaskBusy(task.id)
+                  ? null
+                  : () => TaskToggleAction.run(context, task),
+              child: Text(
+                task.isDone ? 'Mark as to do' : 'Mark as done',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
-

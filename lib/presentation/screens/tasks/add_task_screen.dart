@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-
-import 'package:tasky/core/constants/limits.dart';
+import 'package:tasky/core/constants/app_assets.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/constants/limits.dart';
 import 'package:tasky/core/enums/priority.dart';
 import 'package:tasky/presentation/controllers/task_form_controller.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
@@ -11,56 +12,58 @@ class AddTaskScreen extends StatelessWidget {
   const AddTaskScreen({super.key});
 
   Future<void> _pickDate(
-    BuildContext context,
-    TaskFormController controller,
-  ) async {
+      BuildContext context,
+      TaskFormController controller,
+      ) async {
     final now = controller.now;
 
     final selected = await showDatePicker(
       context: context,
       initialDate: controller.dueDate ?? now,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 10),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
     );
 
-    if (selected != null) controller.setDate(selected);
+    if (!context.mounted || selected == null) return;
+
+    controller.setDate(selected);
   }
 
   Future<void> _pickTime(
-    BuildContext context,
-    TaskFormController controller,
-  ) async {
-    final dueDate = controller.dueDate;
-
-    if (dueDate == null) return;
+      BuildContext context,
+      TaskFormController controller,
+      ) async {
+    if (controller.dueDate == null) return;
 
     final selected = await showTimePicker(
       context: context,
       initialTime: controller.time ?? TimeOfDay.fromDateTime(controller.now),
     );
 
-    if (selected != null) controller.setTime(selected);
+    if (!context.mounted || selected == null) return;
+
+    controller.setTime(selected);
   }
 
   Future<void> _save(
-    BuildContext context,
-    TaskFormController controller,
-  ) async {
-    final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
+      BuildContext context,
+      TaskFormController controller,
+      ) async {
     final saved = await controller.submit();
 
+    if (!context.mounted) return;
+
     if (saved) {
-      navigator.pop();
+      Navigator.of(context).pop();
       return;
     }
 
-    // Validation problems are shown on the fields themselves.
     final message = controller.errorMessage;
 
     if (message != null) {
-      messenger.showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     }
   }
 
@@ -69,7 +72,6 @@ class AddTaskScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final controller = context.watch<TaskFormController>();
     final dueDate = controller.dueDate;
-    final localizations = MaterialLocalizations.of(context);
     final time = controller.time;
 
     return Scaffold(
@@ -80,7 +82,10 @@ class AddTaskScreen extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.all(AppSizes.s20),
           children: [
-            Text('What needs to be done?', style: theme.textTheme.titleMedium),
+            Text(
+              'What needs to be done?',
+              style: theme.textTheme.titleMedium,
+            ),
             SizedBox(height: AppSizes.s8),
             TextField(
               controller: controller.titleController,
@@ -94,7 +99,10 @@ class AddTaskScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: AppSizes.s24),
-            Text('Description', style: theme.textTheme.titleMedium),
+            Text(
+              'Description',
+              style: theme.textTheme.titleMedium,
+            ),
             SizedBox(height: AppSizes.s8),
             TextField(
               controller: controller.descriptionController,
@@ -108,20 +116,30 @@ class AddTaskScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: AppSizes.s24),
-            Text('Priority', style: theme.textTheme.titleMedium),
+            Text(
+              'Priority',
+              style: theme.textTheme.titleMedium,
+            ),
             SizedBox(height: AppSizes.s12),
             SegmentedButton<Priority>(
               expandedInsets: EdgeInsets.zero,
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: Priority.normal,
-                  label: Text('Normal'),
-                  icon: Icon(Icons.circle_outlined),
+                  label: const Text('Normal'),
                 ),
                 ButtonSegment(
                   value: Priority.high,
-                  label: Text('High'),
-                  icon: Icon(Icons.flag_outlined),
+                  label: const Text('High'),
+                  icon: SvgPicture.asset(
+                    AppAssets.flagIcon,
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(
+                      theme.colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               ],
               selected: {controller.priority},
@@ -130,7 +148,10 @@ class AddTaskScreen extends StatelessWidget {
               },
             ),
             SizedBox(height: AppSizes.s24),
-            Text('Schedule', style: theme.textTheme.titleMedium),
+            Text(
+              'Schedule',
+              style: theme.textTheme.titleMedium,
+            ),
             SizedBox(height: AppSizes.s12),
             Container(
               decoration: BoxDecoration(
@@ -140,37 +161,51 @@ class AddTaskScreen extends StatelessWidget {
               child: Column(
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.calendar_today_outlined),
+                    leading: SvgPicture.asset(
+                      AppAssets.dateIcon,
+                      width: 22,
+                      height: 22,
+                    ),
                     title: const Text('Due date'),
                     subtitle: Text(
                       dueDate == null
                           ? 'Choose a due date'
-                          : localizations.formatMediumDate(dueDate),
+                          : MaterialLocalizations.of(context)
+                          .formatMediumDate(dueDate),
                     ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => _pickDate(context, controller),
                   ),
                   Divider(height: AppSizes.stroke1),
                   SwitchListTile.adaptive(
-                    secondary: const Icon(Icons.access_time_rounded),
+                    secondary: SvgPicture.asset(
+                      AppAssets.clockIcon,
+                      width: 22,
+                      height: 22,
+                    ),
                     title: const Text('Set a time'),
                     value: controller.hasDueTime,
                     onChanged: dueDate == null
                         ? null
                         : (value) {
-                            if (value) {
-                              _pickTime(context, controller);
-                            } else {
-                              controller.removeTime();
-                            }
-                          },
+                      if (value) {
+                        _pickTime(context, controller);
+                      } else {
+                        controller.removeTime();
+                      }
+                    },
                   ),
                   if (time != null)
                     ListTile(
-                      leading: const Icon(Icons.schedule_rounded),
+                      leading: SvgPicture.asset(
+                        AppAssets.clockIcon,
+                        width: 22,
+                        height: 22,
+                      ),
                       title: const Text('Time'),
-                      subtitle: Text(localizations.formatTimeOfDay(time)),
-                      trailing: const Icon(Icons.chevron_right_rounded),
+                      subtitle: Text(
+                        MaterialLocalizations.of(context)
+                            .formatTimeOfDay(time),
+                      ),
                       onTap: () => _pickTime(context, controller),
                     ),
                   if (dueDate != null)

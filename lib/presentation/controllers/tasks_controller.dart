@@ -49,58 +49,37 @@ class TasksController extends ChangeNotifier {
   final GetTaskStats _getTaskStats;
   final RestoreTask _restoreTask;
   final Clock _clock;
-
   List<Task> _tasks = <Task>[];
   TaskQuery _query = const TaskQuery();
-
   AsyncStatus _loadStatus = AsyncStatus.initial;
   String? _errorMessage;
-
-  /// IDs of tasks with an operation in progress.
   final Set<String> _busyTaskIds = <String>{};
-
-  /// Number of add/update operations in progress.
   int _pendingSaves = 0;
-
-  /// Identifies the latest load request.
   int _loadRequestId = 0;
 
   // State
   List<Task> get tasks => List.unmodifiable(_tasks);
-
   bool get hasTasks => _tasks.isNotEmpty;
-
   TaskQuery get query => _query;
-
   AsyncStatus get loadStatus => _loadStatus;
-
   String? get errorMessage => _errorMessage;
-
   bool get isLoading => _loadStatus == AsyncStatus.loading;
-
   bool get isSaving => _pendingSaves > 0;
-
   bool isTaskBusy(String id) => _busyTaskIds.contains(id);
-
-  /// The single time source of the presentation layer.
   DateTime get currentTime => _clock();
 
   // Derived lists
   List<Task> get filteredTasks => _filterAndSortTasks(_tasks, _query);
-
   List<Task> get highPriorityTasks => _filterAndSortTasks(
     _tasks.where((task) => task.isHighPriority && !task.isDone).toList(),
     const TaskQuery(sort: TaskSort.newest),
   );
-
   List<Task> get completedTasks => _filterAndSortTasks(
     _tasks.where((task) => task.isDone).toList(),
     const TaskQuery(sort: TaskSort.newest),
   );
-
-  /// Today section contains overdue and today's tasks, excluding items
-  /// already displayed in High priority.
   List<Task> get todayTasks => todayTasksFor(_clock());
+
 
   List<Task> todayTasksFor(DateTime now) {
     final highPriorityIds = highPriorityTasks.map((task) => task.id).toSet();
@@ -373,6 +352,12 @@ class TasksController extends ChangeNotifier {
 
   void _invalidatePendingLoads() {
     _loadRequestId++;
+
+    if (_loadStatus == AsyncStatus.loading) {
+      _loadStatus = _tasks.isEmpty
+          ? AsyncStatus.initial
+          : AsyncStatus.success;
+    }
   }
 
   void _replaceTask(Task updated) {
@@ -386,7 +371,6 @@ class TasksController extends ChangeNotifier {
     _tasks[index] = updated;
   }
 
-  /// Runs an add/update operation and tracks it in [isSaving].
   Future<bool> _save({
     required Future<Result<Task>> Function() action,
     required void Function(Task task) onSuccess,
@@ -409,8 +393,7 @@ class TasksController extends ChangeNotifier {
     }
   }
 
-  /// Runs an action, applies its successful result and records a
-  /// user-friendly error. Technical details are only logged.
+
   Future<bool> _perform<T>({
     required Future<Result<T>> Function() action,
     required void Function(T value) onSuccess,
@@ -442,5 +425,13 @@ class TasksController extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Task? findTaskById(String id) {
+    for (final task in _tasks) {
+      if (task.id == id) return task;
+    }
+
+    return null;
   }
 }
