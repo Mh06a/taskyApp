@@ -4,8 +4,9 @@ import 'package:tasky/domain/entities/user_profile.dart';
 import 'package:tasky/domain/usecases/profile/clear_user_data.dart';
 import 'package:tasky/domain/usecases/profile/get_profile.dart';
 import 'package:tasky/domain/usecases/profile/save_profile.dart';
+import 'package:tasky/presentation/controllers/error_message_mixin.dart';
 
-class ProfileController extends ChangeNotifier {
+class ProfileController extends ChangeNotifier with ErrorMessageMixin {
   ProfileController({
     required GetProfile getProfile,
     required SaveProfile saveProfile,
@@ -24,8 +25,6 @@ class ProfileController extends ChangeNotifier {
   AsyncStatus _saveStatus = AsyncStatus.initial;
   AsyncStatus _clearStatus = AsyncStatus.initial;
 
-  String? _errorMessage;
-
   // State
 
   UserProfile? get profile => _profile;
@@ -33,8 +32,6 @@ class ProfileController extends ChangeNotifier {
   AsyncStatus get loadStatus => _loadStatus;
   AsyncStatus get saveStatus => _saveStatus;
   AsyncStatus get clearStatus => _clearStatus;
-
-  String? get errorMessage => _errorMessage;
 
   bool get isLoading => _loadStatus == AsyncStatus.loading;
   bool get isSaving => _saveStatus == AsyncStatus.loading;
@@ -53,7 +50,7 @@ class ProfileController extends ChangeNotifier {
     if (isLoading || isSaving || isClearing) return;
 
     _loadStatus = AsyncStatus.loading;
-    _errorMessage = null;
+    clearError();
     notifyListeners();
 
     try {
@@ -67,13 +64,13 @@ class ProfileController extends ChangeNotifier {
         err: (failure) {
           debugPrint('Profile load failed: $failure');
           _loadStatus = AsyncStatus.failure;
-          _errorMessage = 'Something went wrong. Please try again.';
+          errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
       debugPrint('Profile load threw an exception: $error');
       _loadStatus = AsyncStatus.failure;
-      _errorMessage = 'Something went wrong. Please try again.';
+      errorMessage = 'Something went wrong. Please try again.';
     }
 
     notifyListeners();
@@ -90,7 +87,7 @@ class ProfileController extends ChangeNotifier {
     if (isLoading || isSaving || isClearing) return false;
 
     _saveStatus = AsyncStatus.loading;
-    _errorMessage = null;
+    clearError();
     notifyListeners();
 
     final current = _profile;
@@ -117,13 +114,13 @@ class ProfileController extends ChangeNotifier {
         err: (failure) {
           debugPrint('Profile save failed: $failure');
           _saveStatus = AsyncStatus.failure;
-          _errorMessage = 'Something went wrong. Please try again.';
+          errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
       debugPrint('Profile save threw an exception: $error');
       _saveStatus = AsyncStatus.failure;
-      _errorMessage = 'Something went wrong. Please try again.';
+      errorMessage = 'Something went wrong. Please try again.';
     }
 
     notifyListeners();
@@ -136,7 +133,7 @@ class ProfileController extends ChangeNotifier {
     if (isLoading || isSaving || isClearing) return false;
 
     _clearStatus = AsyncStatus.loading;
-    _errorMessage = null;
+    clearError();
     notifyListeners();
 
     var success = false;
@@ -153,25 +150,16 @@ class ProfileController extends ChangeNotifier {
         err: (failure) {
           debugPrint('Profile clear failed: $failure');
           _clearStatus = AsyncStatus.failure;
-          _errorMessage = 'Could not clear data. Please try again.';
+          errorMessage = 'Could not clear data. Please try again.';
         },
       );
     } catch (error) {
       debugPrint('Profile clear threw an exception: $error');
       _clearStatus = AsyncStatus.failure;
-      _errorMessage = 'Could not clear data. Please try again.';
+      errorMessage = 'Could not clear data. Please try again.';
     }
 
     notifyListeners();
     return success;
-  }
-
-  // Error
-
-  void clearError() {
-    if (_errorMessage == null) return;
-
-    _errorMessage = null;
-    notifyListeners();
   }
 }

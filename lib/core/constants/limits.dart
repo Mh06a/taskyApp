@@ -4,4 +4,6 @@ abstract final class Limits {
   static const int userName = 40;
   static const int quote = 120;
   static const String defaultQuote = 'Small steps count.';
+  static const int imageQuality = 85;
+  static const double maxWidth = 900;
 }

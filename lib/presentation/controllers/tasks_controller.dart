@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/priority.dart';
+import 'package:tasky/presentation/controllers/error_message_mixin.dart';
 import 'package:tasky/presentation/controllers/task_action_result.dart';
 import 'package:tasky/core/enums/task_sort.dart';
 import 'package:tasky/core/enums/task_status_filter.dart';
@@ -19,7 +20,7 @@ import 'package:tasky/domain/usecases/tasks/restore_task.dart';
 import 'package:tasky/domain/usecases/tasks/toggle_task_done.dart';
 import 'package:tasky/domain/usecases/tasks/update_task.dart';
 
-class TasksController extends ChangeNotifier {
+class TasksController extends ChangeNotifier with ErrorMessageMixin {
   TasksController({
     required GetTasks getTasks,
     required AddTask addTask,
@@ -52,7 +53,6 @@ class TasksController extends ChangeNotifier {
   List<Task> _tasks = <Task>[];
   TaskQuery _query = const TaskQuery();
   AsyncStatus _loadStatus = AsyncStatus.initial;
-  String? _errorMessage;
   final Set<String> _busyTaskIds = <String>{};
   int _pendingSaves = 0;
   int _loadRequestId = 0;
@@ -62,7 +62,6 @@ class TasksController extends ChangeNotifier {
   bool get hasTasks => _tasks.isNotEmpty;
   TaskQuery get query => _query;
   AsyncStatus get loadStatus => _loadStatus;
-  String? get errorMessage => _errorMessage;
   bool get isLoading => _loadStatus == AsyncStatus.loading;
   bool get isSaving => _pendingSaves > 0;
   bool isTaskBusy(String id) => _busyTaskIds.contains(id);
@@ -144,7 +143,7 @@ class TasksController extends ChangeNotifier {
     final requestId = ++_loadRequestId;
 
     _loadStatus = AsyncStatus.loading;
-    _errorMessage = null;
+    clearError();
     notifyListeners();
 
     try {
@@ -161,7 +160,7 @@ class TasksController extends ChangeNotifier {
         err: (failure) {
           debugPrint('Tasks load failed: $failure');
           _loadStatus = AsyncStatus.failure;
-          _errorMessage = 'Could not load tasks. Please try again.';
+          errorMessage = 'Could not load tasks. Please try again.';
         },
       );
     } catch (error) {
@@ -169,7 +168,7 @@ class TasksController extends ChangeNotifier {
 
       debugPrint('Tasks load threw an exception: $error');
       _loadStatus = AsyncStatus.failure;
-      _errorMessage = 'Could not load tasks. Please try again.';
+      errorMessage = 'Could not load tasks. Please try again.';
     }
 
     if (requestId == _loadRequestId) {
@@ -331,16 +330,8 @@ class TasksController extends ChangeNotifier {
     _tasks.clear();
     _query = const TaskQuery();
     _loadStatus = AsyncStatus.initial;
-    _errorMessage = null;
+    clearError();
 
-    notifyListeners();
-  }
-
-  // Error
-  void clearError() {
-    if (_errorMessage == null) return;
-
-    _errorMessage = null;
     notifyListeners();
   }
 
@@ -400,7 +391,7 @@ class TasksController extends ChangeNotifier {
     required String label,
     required String failureMessage,
   }) async {
-    _errorMessage = null;
+    clearError();
 
     try {
       final result = await action();
@@ -412,7 +403,7 @@ class TasksController extends ChangeNotifier {
         },
         err: (failure) {
           debugPrint('$label failed: $failure');
-          _errorMessage = failureMessage;
+          errorMessage = failureMessage;
           return false;
         },
       );
@@ -421,7 +412,7 @@ class TasksController extends ChangeNotifier {
       return success;
     } catch (error) {
       debugPrint('$label threw an exception: $error');
-      _errorMessage = failureMessage;
+      errorMessage = failureMessage;
       notifyListeners();
       return false;
     }

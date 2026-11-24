@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/task_status_filter.dart';
 import 'package:tasky/domain/entities/task.dart';
+import 'package:tasky/presentation/app/app_navigator.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 import 'package:tasky/presentation/formatters/task_date_formatter.dart';
@@ -25,10 +25,7 @@ class HomeScreen extends StatelessWidget {
   final VoidCallback onSeeAllHighPriority;
 
   void _openDetails(BuildContext context, Task task) {
-    Navigator.of(context).pushNamed(
-      AppRoutes.taskDetails,
-      arguments: task.id,
-    );
+    AppNavigator.openTaskDetails(context, task.id);
   }
 
   @override

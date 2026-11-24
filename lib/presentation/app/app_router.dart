@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/domain/entities/task.dart';
 import 'package:tasky/domain/usecases/onboarding/get_onboarding_status.dart';
+import 'package:tasky/domain/usecases/profile/delete_avatar_usecase.dart';
+import 'package:tasky/domain/usecases/profile/save_avatar_usecase.dart';
+import 'package:tasky/presentation/controllers/edit_profile_controller.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/controllers/settings_controller.dart';
 import 'package:tasky/presentation/controllers/splash_controller.dart';
@@ -32,18 +35,14 @@ abstract final class AppRouter {
   static Widget? _buildPage(RouteSettings settings) {
     switch (settings.name) {
       case AppRoutes.splash:
-        return Builder(
-          builder: (context) {
-            return Provider<SplashController>(
-              create: (context) => SplashController(
-                settingsController: context.read<SettingsController>(),
-                profileController: context.read<ProfileController>(),
-                tasksController: context.read<TasksController>(),
-                getOnboardingStatus: context.read<GetOnboardingStatus>(),
-              ),
-              child: const SplashScreen(),
-            );
-          },
+        return Provider<SplashController>(
+          create: (context) => SplashController(
+            settingsController: context.read<SettingsController>(),
+            profileController: context.read<ProfileController>(),
+            tasksController: context.read<TasksController>(),
+            getOnboardingStatus: context.read<GetOnboardingStatus>(),
+          ),
+          child: const SplashScreen(),
         );
 
       case AppRoutes.onboarding:
@@ -62,7 +61,7 @@ abstract final class AppRouter {
         return _buildTaskDetailsPage(settings.arguments);
 
       case AppRoutes.editProfile:
-        return const EditProfileScreen();
+        return _buildEditProfilePage();
 
       default:
         return null;
@@ -82,6 +81,17 @@ abstract final class AppRouter {
         editingTask: editingTask,
       ),
       child: const AddTaskScreen(),
+    );
+  }
+
+  static Widget _buildEditProfilePage() {
+    return ChangeNotifierProvider<EditProfileController>(
+      create: (context) => EditProfileController(
+        profileController: context.read<ProfileController>(),
+        saveAvatar: context.read<SaveAvatarUseCase>(),
+        deleteAvatar: context.read<DeleteAvatarUseCase>(),
+      ),
+      child: const EditProfileScreen(),
     );
   }
 

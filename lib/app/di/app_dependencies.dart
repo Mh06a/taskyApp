@@ -61,7 +61,7 @@ class AppDependencies {
     // Data sources
     final avatarStorage = AvatarStorageDataSource();
 
-    final onboardingDataSource =
+    late final onboardingDataSource =
     OnboardingLocalDataSourceImpl(preferencesManager);
 
     final tasksDataSource = TasksLocalDataSourceImpl(database);

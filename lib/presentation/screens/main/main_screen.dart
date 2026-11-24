@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_assets.dart';
-import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/presentation/app/app_navigator.dart';
 import 'package:tasky/presentation/screens/home/home_screen.dart';
 import 'package:tasky/presentation/screens/main/navigation_item.dart';
 import 'package:tasky/presentation/screens/profile/profile_screen.dart';
@@ -75,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
         ],
       ),
       floatingActionButton: _currentIndex == 2 ? null : FloatingActionButton(
-        onPressed: () => Navigator.of(context).pushNamed(AppRoutes.taskForm),
+        onPressed: () => AppNavigator.openTaskForm(context),
         tooltip: 'Add task',
         child: const Icon(Icons.add_rounded),
       ),

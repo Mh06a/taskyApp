@@ -4,9 +4,10 @@ import 'package:tasky/core/enums/priority.dart';
 import 'package:tasky/core/enums/validation_error.dart';
 import 'package:tasky/core/validators/validators.dart';
 import 'package:tasky/domain/entities/task.dart';
+import 'package:tasky/presentation/controllers/error_message_mixin.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 
-class TaskFormController extends ChangeNotifier {
+class TaskFormController extends ChangeNotifier with ErrorMessageMixin {
   TaskFormController({
     required TasksController tasksController,
     Task? editingTask,
@@ -44,7 +45,6 @@ class TaskFormController extends ChangeNotifier {
   bool get isSaving => _isSaving;
 
   DateTime get now => _tasksController.currentTime;
-  String? get errorMessage => _tasksController.errorMessage;
 
   TimeOfDay? get time {
     if (!hasDueTime || _dueDate == null) return null;
@@ -128,7 +128,7 @@ class TaskFormController extends ChangeNotifier {
   Future<bool> submit() async {
     if (_isSaving) return false;
 
-    _tasksController.clearError();
+    clearError();
 
     if (!_validate()) return false;
 
@@ -141,25 +141,29 @@ class TaskFormController extends ChangeNotifier {
 
       final editingTask = _editingTask;
 
-      if (editingTask == null) {
-        return await _tasksController.addNewTask(
-          title: title,
-          description: description,
-          priority: _priority,
-          dueDate: _dueDate,
-          hasDueTime: hasDueTime,
-        );
+      final success = editingTask == null
+          ? await _tasksController.addNewTask(
+              title: title,
+              description: description,
+              priority: _priority,
+              dueDate: _dueDate,
+              hasDueTime: hasDueTime,
+            )
+          : await _tasksController.updateExistingTask(
+              editingTask.copyWith(
+                title: title,
+                description: description,
+                priority: _priority,
+                dueDate: _dueDate,
+                hasDueTime: hasDueTime,
+              ),
+            );
+
+      if (!success) {
+        errorMessage = _tasksController.errorMessage ?? 'Could not save task.';
       }
 
-      return await _tasksController.updateExistingTask(
-        editingTask.copyWith(
-          title: title,
-          description: description,
-          priority: _priority,
-          dueDate: _dueDate,
-          hasDueTime: hasDueTime,
-        ),
-      );
+      return success;
     } finally {
       _isSaving = false;
       notifyListeners();

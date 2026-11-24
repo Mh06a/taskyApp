@@ -5,8 +5,9 @@ import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/domain/entities/app_settings.dart';
 import 'package:tasky/domain/usecases/settings/get_settings.dart';
 import 'package:tasky/domain/usecases/settings/save_settings.dart';
+import 'package:tasky/presentation/controllers/error_message_mixin.dart';
 
-class SettingsController extends ChangeNotifier {
+class SettingsController extends ChangeNotifier with ErrorMessageMixin {
   SettingsController({
     required GetSettings getSettings,
     required SaveSettings saveSettings,
@@ -21,8 +22,6 @@ class SettingsController extends ChangeNotifier {
   AsyncStatus _loadStatus = AsyncStatus.initial;
   AsyncStatus _saveStatus = AsyncStatus.initial;
 
-  String? _errorMessage;
-
   // State
 
   AppSettings get settings => _settings;
@@ -32,8 +31,6 @@ class SettingsController extends ChangeNotifier {
 
   AsyncStatus get loadStatus => _loadStatus;
   AsyncStatus get saveStatus => _saveStatus;
-
-  String? get errorMessage => _errorMessage;
 
   bool get isLoading => _loadStatus == AsyncStatus.loading;
   bool get isSaving => _saveStatus == AsyncStatus.loading;
@@ -70,7 +67,7 @@ class SettingsController extends ChangeNotifier {
     if (isLoading || isSaving) return;
 
     _loadStatus = AsyncStatus.loading;
-    _errorMessage = null;
+    clearError();
     notifyListeners();
 
     try {
@@ -84,13 +81,13 @@ class SettingsController extends ChangeNotifier {
         err: (failure) {
           debugPrint('Settings load failed: $failure');
           _loadStatus = AsyncStatus.failure;
-          _errorMessage = 'Something went wrong. Please try again.';
+          errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
       debugPrint('Settings load threw an exception: $error');
       _loadStatus = AsyncStatus.failure;
-      _errorMessage = 'Something went wrong. Please try again.';
+      errorMessage = 'Something went wrong. Please try again.';
     }
 
     notifyListeners();
@@ -135,7 +132,7 @@ class SettingsController extends ChangeNotifier {
 
     _settings = updated;
     _saveStatus = AsyncStatus.loading;
-    _errorMessage = null;
+    clearError();
 
     notifyListeners();
 
@@ -153,26 +150,17 @@ class SettingsController extends ChangeNotifier {
           debugPrint('Settings save failed: $failure');
           _settings = previous;
           _saveStatus = AsyncStatus.failure;
-          _errorMessage = 'Something went wrong. Please try again.';
+          errorMessage = 'Something went wrong. Please try again.';
         },
       );
     } catch (error) {
       debugPrint('Settings save threw an exception: $error');
       _settings = previous;
       _saveStatus = AsyncStatus.failure;
-      _errorMessage = 'Something went wrong. Please try again.';
+      errorMessage = 'Something went wrong. Please try again.';
     }
 
     notifyListeners();
     return success;
-  }
-
-  // Error
-
-  void clearError() {
-    if (_errorMessage == null) return;
-
-    _errorMessage = null;
-    notifyListeners();
   }
 }

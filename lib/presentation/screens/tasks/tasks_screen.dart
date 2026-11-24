@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_assets.dart';
-import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/domain/entities/task.dart';
+import 'package:tasky/presentation/app/app_navigator.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 import 'package:tasky/presentation/screens/tasks/widgets/task_list_section.dart';
 import 'package:tasky/presentation/screens/tasks/widgets/task_search_field.dart';
@@ -17,10 +17,7 @@ class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
 
   void _openDetails(BuildContext context, Task task) {
-    Navigator.of(context).pushNamed(
-      AppRoutes.taskDetails,
-      arguments: task.id,
-    );
+    AppNavigator.openTaskDetails(context, task.id);
   }
 
   @override

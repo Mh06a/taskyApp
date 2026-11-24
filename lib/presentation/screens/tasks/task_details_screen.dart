@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_assets.dart';
-import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/core/enums/priority.dart';
 import 'package:tasky/domain/entities/task.dart';
+import 'package:tasky/presentation/app/app_navigator.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 import 'package:tasky/presentation/formatters/task_date_formatter.dart';
 import 'package:tasky/presentation/screens/tasks/widgets/task_detail_row.dart';
@@ -21,10 +21,7 @@ class TaskDetailsScreen extends StatelessWidget {
   final String taskId;
 
   Future<void> _editTask(BuildContext context, Task task) {
-    return Navigator.of(context).pushNamed(
-      AppRoutes.taskForm,
-      arguments: task,
-    );
+    return AppNavigator.openTaskForm(context, task);
   }
 
   Future<void> _deleteTask(

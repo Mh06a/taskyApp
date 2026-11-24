@@ -7,9 +7,10 @@ import 'package:tasky/core/enums/validation_error.dart';
 import 'package:tasky/core/validators/validators.dart';
 import 'package:tasky/domain/usecases/profile/delete_avatar_usecase.dart';
 import 'package:tasky/domain/usecases/profile/save_avatar_usecase.dart';
+import 'package:tasky/presentation/controllers/error_message_mixin.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 
-class EditProfileController extends ChangeNotifier {
+class EditProfileController extends ChangeNotifier with ErrorMessageMixin {
   EditProfileController({
     required ProfileController profileController,
     required SaveAvatarUseCase saveAvatar,
@@ -34,11 +35,10 @@ class EditProfileController extends ChangeNotifier {
   String? _avatarPath;
   String? _originalAvatarPath;
   String? _pendingAvatarPath;
-  String? nameError;
-  String? quoteError;
-  String? errorMessage;
-  AsyncStatus saveStatus = AsyncStatus.initial;
-  bool isPickingAvatar = false;
+  String? _nameError;
+  String? _quoteError;
+  AsyncStatus _saveStatus = AsyncStatus.initial;
+  bool _isPickingAvatar = false;
   bool _validated = false;
   bool _disposed = false;
 
@@ -47,8 +47,12 @@ class EditProfileController extends ChangeNotifier {
   String get quote => _quote;
   String? get avatarPath => _avatarPath;
   bool get hasAvatar => _avatarPath != null;
-  bool get isSaving => saveStatus == AsyncStatus.loading;
-  bool get isBusy => isSaving || isPickingAvatar;
+  String? get nameError => _nameError;
+  String? get quoteError => _quoteError;
+  AsyncStatus get saveStatus => _saveStatus;
+  bool get isPickingAvatar => _isPickingAvatar;
+  bool get isSaving => _saveStatus == AsyncStatus.loading;
+  bool get isBusy => isSaving || _isPickingAvatar;
 
   // Update fields
   void updateName(String value) {
@@ -86,11 +90,11 @@ class EditProfileController extends ChangeNotifier {
 
     notifyListeners();
 
-    return nameError == null && quoteError == null;
+    return _nameError == null && _quoteError == null;
   }
 
   void _validateName() {
-    nameError = switch (Validators.userName(_name.trim())) {
+    _nameError = switch (Validators.userName(_name.trim())) {
       null => null,
       ValidationError.nameEmpty => 'Name is required',
       ValidationError.nameTooLong =>
@@ -100,7 +104,7 @@ class EditProfileController extends ChangeNotifier {
   }
 
   void _validateQuote() {
-    quoteError = switch (Validators.quote(_quote.trim())) {
+    _quoteError = switch (Validators.quote(_quote.trim())) {
       null => null,
       ValidationError.quoteTooLong =>
       'Quote cannot exceed ${Limits.quote} characters',
@@ -112,8 +116,8 @@ class EditProfileController extends ChangeNotifier {
   Future<void> pickAvatar() async {
     if (_disposed || isBusy) return;
 
-    isPickingAvatar = true;
-    errorMessage = null;
+    _isPickingAvatar = true;
+    clearError();
 
     notifyListeners();
 
@@ -122,8 +126,8 @@ class EditProfileController extends ChangeNotifier {
     try {
       final image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 85,
-        maxWidth: 900,
+        imageQuality: Limits.imageQuality,
+        maxWidth: Limits.maxWidth,
       );
 
       if (image == null || _disposed) return;
@@ -172,7 +176,7 @@ class EditProfileController extends ChangeNotifier {
         await _cleanupAvatar(savedPath);
       }
 
-      isPickingAvatar = false;
+      _isPickingAvatar = false;
 
       if (!_disposed) {
         notifyListeners();
@@ -184,7 +188,7 @@ class EditProfileController extends ChangeNotifier {
     if (_disposed || isBusy || !hasAvatar) return;
 
     _avatarPath = null;
-    errorMessage = null;
+    clearError();
 
     notifyListeners();
   }
@@ -195,8 +199,8 @@ class EditProfileController extends ChangeNotifier {
       return false;
     }
 
-    saveStatus = AsyncStatus.loading;
-    errorMessage = null;
+    _saveStatus = AsyncStatus.loading;
+    clearError();
 
     notifyListeners();
 
@@ -210,7 +214,7 @@ class EditProfileController extends ChangeNotifier {
       );
 
       if (success) {
-        await _cleanupUncommittedAvatar();
+        await _cleanupPendingAvatar(clear: false);
 
         _originalAvatarPath =
             _profileController.profile?.avatarPath;
@@ -220,7 +224,7 @@ class EditProfileController extends ChangeNotifier {
         await _cleanupPendingAvatar();
       }
 
-      saveStatus = success
+      _saveStatus = success
           ? AsyncStatus.success
           : AsyncStatus.failure;
 
@@ -237,7 +241,7 @@ class EditProfileController extends ChangeNotifier {
     } catch (error) {
       debugPrint('Profile save failed: $error');
 
-      saveStatus = AsyncStatus.failure;
+      _saveStatus = AsyncStatus.failure;
 
       if (_disposed) {
         await _cleanupPendingAvatar();
@@ -251,24 +255,14 @@ class EditProfileController extends ChangeNotifier {
   }
 
   // Avatar cleanup
-  Future<void> _cleanupUncommittedAvatar() async {
+  Future<void> _cleanupPendingAvatar({bool clear = true}) async {
     final pendingPath = _pendingAvatarPath;
 
     if (pendingPath == null) return;
 
-    final savedPath = _profileController.profile?.avatarPath;
-
-    if (pendingPath != savedPath) {
-      await _cleanupAvatar(pendingPath);
+    if (clear) {
+      _pendingAvatarPath = null;
     }
-  }
-
-  Future<void> _cleanupPendingAvatar() async {
-    final pendingPath = _pendingAvatarPath;
-
-    if (pendingPath == null) return;
-
-    _pendingAvatarPath = null;
 
     final savedPath = _profileController.profile?.avatarPath;
 
