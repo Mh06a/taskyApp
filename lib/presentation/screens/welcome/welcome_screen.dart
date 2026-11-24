@@ -3,75 +3,25 @@ import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/core/constants/limits.dart';
-import 'package:tasky/core/enums/validation_error.dart';
-import 'package:tasky/core/validators/validators.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
+import 'package:tasky/presentation/controllers/welcome_controller.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
 
-class WelcomeScreen extends StatefulWidget {
+class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
-}
+  Future<void> _continue(BuildContext context) async {
+    final controller = context.read<WelcomeController>();
+    final success = await controller.continueSave();
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  String? _nameError;
-  bool _validated = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController.addListener(_onNameChanged);
-  }
-
-  void _onNameChanged() {
-    if (_validated) {
-      _validateName();
-    }
-  }
-
-  void _validateName() {
-    final name = _nameController.text.trim();
-    setState(() {
-      _nameError = switch (Validators.userName(name)) {
-        null => null,
-        ValidationError.nameEmpty => 'Name is required',
-        ValidationError.nameTooLong =>
-        'Name cannot exceed ${Limits.userName} characters',
-        _ => null,
-      };
-    });
-  }
-
-  Future<void> _continue() async {
-    setState(() {
-      _validated = true;
-    });
-    _validateName();
-
-    if (_nameError != null) {
-      return;
-    }
-
-    final name = _nameController.text.trim();
-    final profileController = context.read<ProfileController>();
-
-    final success = await profileController.save(
-      name: name,
-      quote: Limits.defaultQuote,
-    );
-
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (!success) {
-      final message = profileController.errorMessage ??
-          'Could not save your profile';
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      if (controller.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(controller.errorMessage!)),
+        );
+      }
       return;
     }
 
@@ -79,15 +29,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   @override
-  void dispose() {
-    _nameController.removeListener(_onNameChanged);
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final controller = context.watch<WelcomeController>();
     final profileController = context.watch<ProfileController>();
 
     return Scaffold(
@@ -143,7 +87,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               SizedBox(height: AppSizes.s24),
               TextField(
-                controller: _nameController,
+                controller: controller.nameController,
                 maxLength: Limits.userName,
                 textCapitalization: TextCapitalization.words,
                 enabled: !profileController.isSaving,
@@ -151,14 +95,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   labelText: 'Your name',
                   hintText: 'Enter your name',
                   counterText: '',
-                  errorText: _nameError,
+                  errorText: controller.nameError,
                 ),
               ),
               const Spacer(),
               AppButton(
                 text: 'Let’s begin',
                 onPressed:
-                profileController.isSaving ? null : _continue,
+                profileController.isSaving ? null : () => _continue(context),
                 isLoading: profileController.isSaving,
               ),
             ],

@@ -8,33 +8,15 @@ import 'package:tasky/presentation/screens/onboarding/widgets/onboarding_content
 import 'package:tasky/presentation/screens/onboarding/widgets/onboarding_indicator.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
-  @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  late final PageController _pageController;
-
-  bool get _isLastPage =>
-      context.read<OnboardingController>().currentPage ==
-          OnboardingData.pages.length - 1;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
   // Complete onboarding and navigate to the welcome screen.
-  Future<void> _finishOnboarding() async {
-    final success = await context
-        .read<OnboardingController>()
-        .finishOnboarding();
+  Future<void> _finishOnboarding(BuildContext context) async {
+    final controller = context.read<OnboardingController>();
+    final success = await controller.finishOnboarding();
 
-    if (!mounted) return;
+    if (!context.mounted) return;
 
     if (success) {
       Navigator.of(context).pushReplacementNamed(AppRoutes.welcome);
@@ -49,35 +31,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   // Move to the next page or finish onboarding.
-  void _nextPage() {
-    if (_isLastPage) {
-      _finishOnboarding();
+  void _nextPage(BuildContext context) {
+    final controller = context.read<OnboardingController>();
+    if (controller.isLastPage) {
+      _finishOnboarding(context);
       return;
     }
 
-    _pageController.nextPage(
+    controller.pageController.nextPage(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final controller = context.watch<OnboardingController>();
-
-    final isLastPage =
-        controller.currentPage == OnboardingData.pages.length - 1;
+    final isLastPage = controller.isLastPage;
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding:  EdgeInsets.all(AppSizes.s24),
+          padding: EdgeInsets.all(AppSizes.s24),
           child: Column(
             children: [
               SizedBox(
@@ -89,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       : TextButton(
                     onPressed: controller.isFinishing
                         ? null
-                        : _finishOnboarding,
+                        : () => _finishOnboarding(context),
                     child: Text(
                       'Skip',
                       style: Theme.of(context).textTheme.labelLarge,
@@ -100,7 +75,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
               Expanded(
                 child: PageView.builder(
-                  controller: _pageController,
+                  controller: controller.pageController,
                   itemCount: OnboardingData.pages.length,
                   onPageChanged: controller.updatePage,
                   itemBuilder: (context, index) {
@@ -112,19 +87,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
 
               OnboardingIndicator(
-                controller: _pageController,
+                controller: controller.pageController,
                 count: OnboardingData.pages.length,
               ),
 
-               SizedBox(height: AppSizes.s24),
+              SizedBox(height: AppSizes.s24),
 
               AppButton(
                 text: isLastPage ? 'Get started' : 'Continue',
-                onPressed: controller.isFinishing ? null : _nextPage,
+                onPressed: controller.isFinishing ? null : () => _nextPage(context),
                 isLoading: controller.isFinishing,
               ),
 
-               SizedBox(height: AppSizes.s8),
+              SizedBox(height: AppSizes.s8),
             ],
           ),
         ),

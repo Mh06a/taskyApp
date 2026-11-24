@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_assets.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/presentation/app/app_navigator.dart';
+import 'package:tasky/presentation/controllers/main_controller.dart';
 import 'package:tasky/presentation/screens/home/home_screen.dart';
 import 'package:tasky/presentation/screens/main/navigation_item.dart';
 import 'package:tasky/presentation/screens/profile/profile_screen.dart';
 import 'package:tasky/presentation/screens/tasks/tasks_screen.dart';
 import 'package:tasky/presentation/widgets/app_svg_icon.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
-
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
-
-  void _openTasksTab() => _onItemSelected(1);
 
   static const _navigationItems = [
     NavigationItem(
@@ -34,14 +27,6 @@ class _MainScreenState extends State<MainScreen> {
       iconPath: AppAssets.profileIcon,
     ),
   ];
-
-  void _onItemSelected(int index) {
-    if (_currentIndex == index) return;
-
-    setState(() {
-      _currentIndex = index;
-    });
-  }
 
   BottomNavigationBarItem _buildItem(
       String label,
@@ -65,23 +50,28 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<MainController>();
+    final currentIndex = controller.currentIndex;
+
+    void openTasksTab() => controller.setIndex(1);
+
     return Scaffold(
       body: IndexedStack(
-        index: _currentIndex,
+        index: currentIndex,
         children: [
-          HomeScreen(onSeeAllHighPriority: _openTasksTab),
+          HomeScreen(onSeeAllHighPriority: openTasksTab),
           const TasksScreen(),
           const ProfileScreen(),
         ],
       ),
-      floatingActionButton: _currentIndex == 2 ? null : FloatingActionButton(
+      floatingActionButton: currentIndex == 2 ? null : FloatingActionButton(
         onPressed: () => AppNavigator.openTaskForm(context),
         tooltip: 'Add task',
         child: const Icon(Icons.add_rounded),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onItemSelected,
+        currentIndex: currentIndex,
+        onTap: controller.setIndex,
         items: _navigationItems
             .map(
               (item) => _buildItem(

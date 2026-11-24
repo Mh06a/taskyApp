@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tasky/presentation/screens/onboarding/data/onboarding_data.dart';
 import 'package:tasky/domain/usecases/onboarding/complete_onboarding.dart';
 
 class OnboardingController extends ChangeNotifier {
@@ -7,12 +8,14 @@ class OnboardingController extends ChangeNotifier {
   }) : _completeOnboarding = completeOnboarding;
 
   final CompleteOnboarding _completeOnboarding;
+  final PageController pageController = PageController();
 
   int _currentPage = 0;
   bool _isFinishing = false;
 
   int get currentPage => _currentPage;
   bool get isFinishing => _isFinishing;
+  bool get isLastPage => _currentPage == OnboardingData.pages.length - 1;
 
   // Update the current onboarding page.
   void updatePage(int index) {
@@ -39,5 +42,11 @@ class OnboardingController extends ChangeNotifier {
       _isFinishing = false;
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 }

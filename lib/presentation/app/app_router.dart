@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/domain/entities/task.dart';
+import 'package:tasky/domain/usecases/onboarding/complete_onboarding.dart';
 import 'package:tasky/domain/usecases/onboarding/get_onboarding_status.dart';
 import 'package:tasky/domain/usecases/profile/delete_avatar_usecase.dart';
 import 'package:tasky/domain/usecases/profile/save_avatar_usecase.dart';
 import 'package:tasky/presentation/controllers/edit_profile_controller.dart';
+import 'package:tasky/presentation/controllers/main_controller.dart';
+import 'package:tasky/presentation/controllers/onboarding_controller.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/controllers/settings_controller.dart';
 import 'package:tasky/presentation/controllers/splash_controller.dart';
 import 'package:tasky/presentation/controllers/task_form_controller.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
+import 'package:tasky/presentation/controllers/welcome_controller.dart';
 import 'package:tasky/presentation/screens/main/main_screen.dart';
 import 'package:tasky/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:tasky/presentation/screens/profile/edit_profile_screen.dart';
@@ -46,13 +50,26 @@ abstract final class AppRouter {
         );
 
       case AppRoutes.onboarding:
-        return const OnboardingScreen();
+        return ChangeNotifierProvider<OnboardingController>(
+          create: (context) => OnboardingController(
+            completeOnboarding: context.read<CompleteOnboarding>(),
+          ),
+          child: const OnboardingScreen(),
+        );
 
       case AppRoutes.welcome:
-        return const WelcomeScreen();
+        return ChangeNotifierProvider<WelcomeController>(
+          create: (context) => WelcomeController(
+            profileController: context.read<ProfileController>(),
+          ),
+          child: const WelcomeScreen(),
+        );
 
       case AppRoutes.main:
-        return const MainScreen();
+        return ChangeNotifierProvider<MainController>(
+          create: (_) => MainController(),
+          child: const MainScreen(),
+        );
 
       case AppRoutes.taskForm:
         return _buildTaskFormPage(settings.arguments);
