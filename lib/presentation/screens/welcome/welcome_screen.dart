@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_routes.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/constants/limits.dart';
+import 'package:tasky/core/enums/validation_error.dart';
+import 'package:tasky/core/validators/validators.dart';
 import 'package:tasky/presentation/controllers/profile_controller.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
 
@@ -14,24 +17,50 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final TextEditingController _nameController = TextEditingController();
+  String? _nameError;
+  bool _validated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_onNameChanged);
+  }
+
+  void _onNameChanged() {
+    if (_validated) {
+      _validateName();
+    }
+  }
+
+  void _validateName() {
+    final name = _nameController.text.trim();
+    setState(() {
+      _nameError = switch (Validators.userName(name)) {
+        null => null,
+        ValidationError.nameEmpty => 'Name is required',
+        ValidationError.nameTooLong =>
+        'Name cannot exceed ${Limits.userName} characters',
+        _ => null,
+      };
+    });
+  }
 
   Future<void> _continue() async {
-    final name = _nameController.text.trim();
+    setState(() {
+      _validated = true;
+    });
+    _validateName();
 
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your name'),
-        ),
-      );
+    if (_nameError != null) {
       return;
     }
 
+    final name = _nameController.text.trim();
     final profileController = context.read<ProfileController>();
 
     final success = await profileController.save(
       name: name,
-      quote: 'Small steps count.',
+      quote: Limits.defaultQuote,
     );
 
     if (!mounted) return;
@@ -51,6 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   void dispose() {
+    _nameController.removeListener(_onNameChanged);
     _nameController.dispose();
     super.dispose();
   }
@@ -114,11 +144,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               SizedBox(height: AppSizes.s24),
               TextField(
                 controller: _nameController,
+                maxLength: Limits.userName,
                 textCapitalization: TextCapitalization.words,
                 enabled: !profileController.isSaving,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Your name',
                   hintText: 'Enter your name',
+                  counterText: '',
+                  errorText: _nameError,
                 ),
               ),
               const Spacer(),

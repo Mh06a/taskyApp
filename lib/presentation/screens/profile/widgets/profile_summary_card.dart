@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/constants/limits.dart';
 import 'package:tasky/domain/entities/user_profile.dart';
 import 'package:tasky/presentation/widgets/profile_avatar.dart';
 
@@ -37,7 +38,7 @@ class ProfileSummaryCard extends StatelessWidget {
                 Text(displayName, style: theme.textTheme.titleMedium),
                 SizedBox(height: AppSizes.s4),
                 Text(
-                  profile?.quote ?? 'Small steps count.',
+                  profile?.quote ?? Limits.defaultQuote,
                   style: theme.textTheme.bodySmall,
                 ),
               ],

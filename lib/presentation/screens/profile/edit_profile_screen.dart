@@ -120,7 +120,7 @@ class EditProfileScreen extends StatelessWidget {
                     enabled: !controller.isBusy,
                     onChanged: controller.updateQuote,
                     decoration: InputDecoration(
-                      hintText: 'Small steps count.',
+                      hintText: Limits.defaultQuote,
                       errorText: controller.quoteError,
                     ),
                   ),

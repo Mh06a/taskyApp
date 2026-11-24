@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/presentation/controllers/splash_controller.dart';
+import 'package:tasky/presentation/screens/splash/splash_destination.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,13 +25,18 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _start() async {
     final navigator = Navigator.of(context);
 
-    final destination = await context
-        .read<SplashController>()
-        .resolveDestination();
+    try {
+      final destination = await context
+          .read<SplashController>()
+          .resolveDestination();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    navigator.pushReplacementNamed(destination.routeName);
+      navigator.pushReplacementNamed(destination.routeName);
+    } catch (_) {
+      if (!mounted) return;
+      navigator.pushReplacementNamed(SplashDestination.onboarding.routeName);
+    }
   }
 
   @override

@@ -32,11 +32,7 @@ class SplashController {
 
     final isOnboardingCompleted = onboardingResult.when<bool>(
       ok: (value) => value,
-      err: (failure) {
-        throw StateError(
-          'Failed to load onboarding status: $failure',
-        );
-      },
+      err: (_) => false,
     );
 
     if (!isOnboardingCompleted) {
