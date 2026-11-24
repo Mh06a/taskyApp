@@ -95,4 +95,6 @@ abstract final class AppSizes {
   static final zero = 0.0;
   static const lineHeightNormal = 1.5;
   static const lineHeightRelaxed = 1.6;
+  static final errorStateHeight = 250.h;
+  static const durationNormal = Duration(milliseconds: 300);
 }

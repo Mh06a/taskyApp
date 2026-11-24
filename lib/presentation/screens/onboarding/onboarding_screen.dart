@@ -39,7 +39,7 @@ class OnboardingScreen extends StatelessWidget {
     }
 
     controller.pageController.nextPage(
-      duration: const Duration(milliseconds: 300),
+      duration: AppSizes.durationNormal,
       curve: Curves.easeInOut,
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/theme/app_colors.dart';
 
 class TaskSearchField extends StatelessWidget {
   const TaskSearchField({
@@ -21,7 +22,7 @@ class TaskSearchField extends StatelessWidget {
         prefixIcon: const Icon(Icons.search_rounded),
         filled: true,
         fillColor: theme.colorScheme.surfaceContainerHighest
-            .withValues(alpha: 0.55),
+            .withValues(alpha: AppColors.alphaMuted),
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppSizes.s16,
           vertical: AppSizes.s16,

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_assets.dart';
@@ -7,6 +6,7 @@ import 'package:tasky/core/constants/limits.dart';
 import 'package:tasky/presentation/controllers/edit_profile_controller.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
 import 'package:tasky/presentation/widgets/app_svg_icon.dart';
+import 'package:tasky/presentation/widgets/profile_avatar.dart';
 
 class EditProfileScreen extends StatelessWidget {
   const EditProfileScreen({super.key});
@@ -32,26 +32,12 @@ class EditProfileScreen extends StatelessWidget {
                 Center(
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: AppSizes.avatarLarge / 2,
-                        child: avatarPath == null
-                            ? AppSvgIcon(assetPath: AppAssets.profileIcon
-                          , size: AppSizes.icon32,)
-                            : ClipOval(
-                          child: Image.file(
-                            File(avatarPath),
-                            width: AppSizes.avatarLarge,
-                            height: AppSizes.avatarLarge,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) {
-                              return SizedBox(
-                                width: AppSizes.avatarLarge,
-                                height: AppSizes.avatarLarge,
-                                child: AppSvgIcon(assetPath: AppAssets.profileIcon
-                                  , size: AppSizes.icon32,)
-                              );
-                            },
-                          ),
+                      ProfileAvatar(
+                        path: avatarPath,
+                        size: AppSizes.avatarLarge,
+                        fallback: AppSvgIcon(
+                          assetPath: AppAssets.profileIcon,
+                          size: AppSizes.icon32,
                         ),
                       ),
                       SizedBox(height: AppSizes.s12),

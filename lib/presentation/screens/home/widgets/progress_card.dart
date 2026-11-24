@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/theme/app_colors.dart';
 
 class ProgressCard extends StatelessWidget {
   const ProgressCard({
@@ -32,10 +33,10 @@ class ProgressCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppSizes.s16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        color: theme.colorScheme.primary.withValues(alpha: AppColors.alphaSubtle),
         borderRadius: BorderRadius.circular(AppSizes.r20),
         border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.08),
+          color: theme.colorScheme.primary.withValues(alpha: AppColors.alphaSubtle),
         ),
       ),
       child: Row(
@@ -87,7 +88,7 @@ class ProgressCard extends StatelessWidget {
                     strokeWidth: AppSizes.s4,
                     strokeCap: StrokeCap.round,
                     backgroundColor:
-                    theme.colorScheme.primary.withValues(alpha: 0.12),
+                    theme.colorScheme.primary.withValues(alpha: AppColors.alphaLight),
                     color: theme.colorScheme.primary,
                   ),
                 ),

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/theme/app_colors.dart';
 
 class ChoiceTile extends StatelessWidget {
   const ChoiceTile({
@@ -27,7 +28,7 @@ class ChoiceTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppSizes.r12),
         ),
         tileColor: selected
-            ? theme.colorScheme.primary.withValues(alpha: 0.12)
+            ? theme.colorScheme.primary.withValues(alpha: AppColors.alphaLight)
             : theme.colorScheme.surface,
         leading: leading,
         title: Text(title),

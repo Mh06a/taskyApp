@@ -133,8 +133,8 @@ class AddTaskScreen extends StatelessWidget {
                   label: const Text('High'),
                   icon: SvgPicture.asset(
                     AppAssets.flagIcon,
-                    width: 18,
-                    height: 18,
+                    width: AppSizes.icon18,
+                    height: AppSizes.icon18,
                     colorFilter: ColorFilter.mode(
                       theme.colorScheme.primary,
                       BlendMode.srcIn,
@@ -163,8 +163,8 @@ class AddTaskScreen extends StatelessWidget {
                   ListTile(
                     leading: SvgPicture.asset(
                       AppAssets.dateIcon,
-                      width: 22,
-                      height: 22,
+                      width: AppSizes.icon22,
+                      height: AppSizes.icon22,
                     ),
                     title: const Text('Due date'),
                     subtitle: Text(
@@ -179,8 +179,8 @@ class AddTaskScreen extends StatelessWidget {
                   SwitchListTile.adaptive(
                     secondary: SvgPicture.asset(
                       AppAssets.clockIcon,
-                      width: 22,
-                      height: 22,
+                      width: AppSizes.icon22,
+                      height: AppSizes.icon22,
                     ),
                     title: const Text('Set a time'),
                     value: controller.hasDueTime,
@@ -198,8 +198,8 @@ class AddTaskScreen extends StatelessWidget {
                     ListTile(
                       leading: SvgPicture.asset(
                         AppAssets.clockIcon,
-                        width: 22,
-                        height: 22,
+                        width: AppSizes.icon22,
+                        height: AppSizes.icon22,
                       ),
                       title: const Text('Time'),
                       subtitle: Text(

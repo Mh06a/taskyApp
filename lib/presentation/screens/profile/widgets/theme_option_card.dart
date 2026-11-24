@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/theme/app_colors.dart';
 
 class ThemeOptionCard extends StatelessWidget {
   const ThemeOptionCard({
@@ -30,13 +31,13 @@ class ThemeOptionCard extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: selected
-              ? scheme.primary.withValues(alpha: 0.12)
+              ? scheme.primary.withValues(alpha: AppColors.alphaLight)
               : scheme.surface,
           borderRadius: BorderRadius.circular(AppSizes.r16),
           border: Border.all(
             color: selected
                 ? scheme.primary
-                : theme.dividerColor.withValues(alpha: 0.3),
+                : theme.dividerColor.withValues(alpha: AppColors.alphaBorder),
             width: selected ? AppSizes.stroke1_5 : AppSizes.stroke1,
           ),
         ),

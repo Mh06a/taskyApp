@@ -72,8 +72,8 @@ class TasksScreen extends StatelessWidget {
                           child: InputChip(
                             avatar: SvgPicture.asset(
                               AppAssets.flagIcon,
-                              width: 18,
-                              height: 18,
+                              width: AppSizes.icon18,
+                              height: AppSizes.icon18,
                             ),
                             label: const Text('High priority'),
                             onDeleted: () {
@@ -136,7 +136,7 @@ class TasksScreen extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           SizedBox(
-            height: 250,
+            height: AppSizes.errorStateHeight,
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

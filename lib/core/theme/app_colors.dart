@@ -49,4 +49,12 @@ abstract final class AppColors {
   static const white = Color(0xFFFFFFFF);
   static const black = Color(0xFF000000);
   static const transparent = Color(0x00000000);
+
+  /// Opacity Alphas
+  static const double alphaSubtle = 0.08;
+  static const double alphaLight = 0.12;
+  static const double alphaMedium = 0.16;
+  static const double alphaStrong = 0.18;
+  static const double alphaBorder = 0.3;
+  static const double alphaMuted = 0.55;
 }
