@@ -2,7 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/priority.dart';
-import 'package:tasky/core/enums/task_action_result.dart';
+import 'package:tasky/presentation/controllers/task_action_result.dart';
 import 'package:tasky/core/enums/task_sort.dart';
 import 'package:tasky/core/enums/task_status_filter.dart';
 import 'package:tasky/core/services/clock.dart';

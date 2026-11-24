@@ -1,4 +1,4 @@
-import 'package:tasky/core/constants/database_constants.dart';
+import 'package:tasky/data/constants/tasks_table.dart';
 import 'package:tasky/core/enums/priority.dart';
 import 'package:tasky/core/extensions/enum_extensions.dart';
 import 'package:tasky/domain/entities/task.dart';

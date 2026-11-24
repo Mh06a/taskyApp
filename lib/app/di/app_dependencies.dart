@@ -1,9 +1,9 @@
 import 'package:tasky/core/services/uuid_id_generator.dart';
 import 'package:tasky/data/datasources/local/avatar_storage_data_source.dart';
-import 'package:tasky/data/datasources/local/onboarding_local_data_source.dart';
-import 'package:tasky/data/datasources/local/profile_local_data_source.dart';
-import 'package:tasky/data/datasources/local/settings_local_data_source.dart';
-import 'package:tasky/data/datasources/local/tasks_local_data_source.dart';
+import 'package:tasky/data/datasources/local/onboarding_local_data_source_impl.dart';
+import 'package:tasky/data/datasources/local/profile_local_data_source_impl.dart';
+import 'package:tasky/data/datasources/local/settings_local_data_source_impl.dart';
+import 'package:tasky/data/datasources/local/tasks_local_data_source_impl.dart';
 import 'package:tasky/data/repositories/avatar_repository_impl.dart';
 import 'package:tasky/data/repositories/onboarding_repository_impl.dart';
 import 'package:tasky/data/repositories/profile_repository_impl.dart';

@@ -1,6 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:tasky/core/constants/database_constants.dart';
+import 'package:tasky/data/constants/database_constants.dart';
+import 'package:tasky/data/constants/profile_table.dart';
+import 'package:tasky/data/constants/tasks_table.dart';
 
 class DatabaseService {
   DatabaseService({String? path}) : _path = path;
@@ -78,10 +80,6 @@ class DatabaseService {
       int oldVersion,
       int newVersion,
       ) async {
-    if (oldVersion < 2) {
-      // Version 2: existing migration infrastructure.
-    }
-
     if (oldVersion < 3) {
       await _createProfileTable(db);
     }

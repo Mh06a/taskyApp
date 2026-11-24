@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tasky/core/enums/task_action_result.dart';
+import 'package:tasky/presentation/controllers/task_action_result.dart';
 import 'package:tasky/domain/entities/task.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 
