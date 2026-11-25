@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
-import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/core/enums/task_status_filter.dart';
 import 'package:tasky/domain/entities/task.dart';
 import 'package:tasky/presentation/app/app_navigator.dart';
@@ -93,14 +92,7 @@ class HomeScreen extends StatelessWidget {
                         : null,
                   ),
                   SizedBox(height: AppSizes.s8),
-                  if (tasksController.loadStatus == AsyncStatus.initial ||
-                      (tasksController.loadStatus == AsyncStatus.loading &&
-                          highPriorityTasks.isEmpty &&
-                          todayTasks.isEmpty))
-                    const Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  else if (highPriorityTasks.isEmpty)
+                  if (highPriorityTasks.isEmpty)
                     const EmptyState(
                       title: 'No high priority tasks',
                       description:

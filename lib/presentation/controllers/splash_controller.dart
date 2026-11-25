@@ -35,17 +35,16 @@ class SplashController {
       err: (_) => false,
     );
 
-    if (!isOnboardingCompleted) {
-      await minimumDelay;
-      return SplashDestination.onboarding;
-    }
-
     await Future.wait([
       _profileController.loadProfile(),
       _tasksController.loadTasks(),
     ]);
 
     await minimumDelay;
+
+    if (!isOnboardingCompleted) {
+      return SplashDestination.onboarding;
+    }
 
     return _profileController.profile == null
         ? SplashDestination.welcome

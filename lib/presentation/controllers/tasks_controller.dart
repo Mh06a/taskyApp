@@ -329,7 +329,7 @@ class TasksController extends ChangeNotifier with ErrorMessageMixin {
 
     _tasks.clear();
     _query = const TaskQuery();
-    _loadStatus = AsyncStatus.initial;
+    _loadStatus = AsyncStatus.success;
     clearError();
 
     notifyListeners();
