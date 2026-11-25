@@ -47,12 +47,6 @@ class FakeTasksRepository implements TasksRepository {
   }
 
   @override
-  Future<Result<void>> restoreTask(Task task) async {
-    tasks.add(task);
-    return const Ok(null);
-  }
-
-  @override
   Future<Result<void>> deleteAllTasks() async {
     tasks.clear();
     return const Ok(null);

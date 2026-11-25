@@ -68,8 +68,6 @@ class FakeTasksRepo implements TasksRepository {
   @override
   Future<Result<void>> deleteTask(String id) async => const Ok(null);
   @override
-  Future<Result<void>> restoreTask(Task task) async => const Ok(null);
-  @override
   Future<Result<void>> deleteAllTasks() async => const Ok(null);
 }
 
