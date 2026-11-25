@@ -97,4 +97,5 @@ abstract final class AppSizes {
   static const lineHeightRelaxed = 1.6;
   static final errorStateHeight = 250.h;
   static const durationNormal = Duration(milliseconds: 300);
+  static const durationFast = Duration(milliseconds: 180);
 }

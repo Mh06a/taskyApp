@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:tasky/core/constants/app_sizes.dart';
+import 'package:tasky/core/theme/app_colors.dart';
 import 'package:tasky/core/enums/task_sort.dart';
 import 'package:tasky/presentation/controllers/tasks_controller.dart';
 import 'package:tasky/presentation/widgets/app_button.dart';
@@ -155,7 +155,7 @@ class _SortOption extends StatelessWidget {
           padding: EdgeInsets.all(AppSizes.s16),
           decoration: BoxDecoration(
             color: selected
-                ? theme.colorScheme.primary.withValues(alpha: 0.08)
+                ? theme.colorScheme.primary.withValues(alpha: AppColors.alphaSubtle)
                 : theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(AppSizes.r12),
             border: Border.all(

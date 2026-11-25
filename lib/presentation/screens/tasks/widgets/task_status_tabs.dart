@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasky/core/constants/app_sizes.dart';
 import 'package:tasky/core/enums/task_status_filter.dart';
+import 'package:tasky/core/theme/app_colors.dart';
 
 class TaskStatusTabs extends StatelessWidget {
   const TaskStatusTabs({
@@ -37,7 +38,7 @@ class TaskStatusTabs extends StatelessWidget {
               onTap: () => onChanged(item.$1),
               borderRadius: BorderRadius.circular(AppSizes.r12),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: AppSizes.durationFast,
                 padding: EdgeInsets.symmetric(
                   vertical: AppSizes.s16,
                 ),
@@ -49,7 +50,7 @@ class TaskStatusTabs extends StatelessWidget {
                   boxShadow: isSelected
                       ? [
                     BoxShadow(
-                      color: theme.colorScheme.shadow.withValues(alpha: 0.08),
+                      color: theme.colorScheme.shadow.withValues(alpha: AppColors.alphaSubtle),
                       blurRadius: AppSizes.s8,
                     ),
                   ]
