@@ -146,30 +146,22 @@ class TasksController extends ChangeNotifier with ErrorMessageMixin {
     clearError();
     notifyListeners();
 
-    try {
-      final result = await _getTasks();
+    final result = await _getTasks();
 
-      // Ignore results from older requests.
-      if (requestId != _loadRequestId) return;
+    // Ignore results from older requests.
+    if (requestId != _loadRequestId) return;
 
-      result.when(
-        ok: (items) {
-          _tasks = List<Task>.of(items, growable: true);
-          _loadStatus = AsyncStatus.success;
-        },
-        err: (failure) {
-          debugPrint('Tasks load failed: $failure');
-          _loadStatus = AsyncStatus.failure;
-          errorMessage = 'Could not load tasks. Please try again.';
-        },
-      );
-    } catch (error) {
-      if (requestId != _loadRequestId) return;
-
-      debugPrint('Tasks load threw an exception: $error');
-      _loadStatus = AsyncStatus.failure;
-      errorMessage = 'Could not load tasks. Please try again.';
-    }
+    result.when(
+      ok: (items) {
+        _tasks = List<Task>.of(items, growable: true);
+        _loadStatus = AsyncStatus.success;
+      },
+      err: (failure) {
+        debugPrint('Tasks load failed: $failure');
+        _loadStatus = AsyncStatus.failure;
+        errorMessage = 'Could not load tasks. Please try again.';
+      },
+    );
 
     if (requestId == _loadRequestId) {
       notifyListeners();
@@ -393,29 +385,22 @@ class TasksController extends ChangeNotifier with ErrorMessageMixin {
   }) async {
     clearError();
 
-    try {
-      final result = await action();
+    final result = await action();
 
-      final success = result.when(
-        ok: (value) {
-          onSuccess(value);
-          return true;
-        },
-        err: (failure) {
-          debugPrint('$label failed: $failure');
-          errorMessage = failureMessage;
-          return false;
-        },
-      );
+    final success = result.when(
+      ok: (value) {
+        onSuccess(value);
+        return true;
+      },
+      err: (failure) {
+        debugPrint('$label failed: $failure');
+        errorMessage = failureMessage;
+        return false;
+      },
+    );
 
-      notifyListeners();
-      return success;
-    } catch (error) {
-      debugPrint('$label threw an exception: $error');
-      errorMessage = failureMessage;
-      notifyListeners();
-      return false;
-    }
+    notifyListeners();
+    return success;
   }
 
   Task? findTaskById(String id) {

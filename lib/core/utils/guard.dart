@@ -6,7 +6,7 @@ Future<Result<T>> guard<T>(
     ) async {
   try {
     return Ok<T>(await action());
-  } on Exception catch (e) {
+  } catch (e) {
     return Err<T>(StorageFailure(cause: e));
   }
 }
@@ -14,7 +14,7 @@ Future<Result<T>> guard<T>(
 Result<T> guardSync<T>(T Function() action) {
   try {
     return Ok<T>(action());
-  } on Exception catch (e) {
+  } catch (e) {
     return Err<T>(StorageFailure(cause: e));
   }
 }

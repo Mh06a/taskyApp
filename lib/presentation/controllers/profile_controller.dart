@@ -53,25 +53,19 @@ class ProfileController extends ChangeNotifier with ErrorMessageMixin {
     clearError();
     notifyListeners();
 
-    try {
-      final result = await _getProfile();
+    final result = await _getProfile();
 
-      result.when(
-        ok: (profile) {
-          _profile = profile;
-          _loadStatus = AsyncStatus.success;
-        },
-        err: (failure) {
-          debugPrint('Profile load failed: $failure');
-          _loadStatus = AsyncStatus.failure;
-          errorMessage = 'Something went wrong. Please try again.';
-        },
-      );
-    } catch (error) {
-      debugPrint('Profile load threw an exception: $error');
-      _loadStatus = AsyncStatus.failure;
-      errorMessage = 'Something went wrong. Please try again.';
-    }
+    result.when(
+      ok: (profile) {
+        _profile = profile;
+        _loadStatus = AsyncStatus.success;
+      },
+      err: (failure) {
+        debugPrint('Profile load failed: $failure');
+        _loadStatus = AsyncStatus.failure;
+        errorMessage = 'Something went wrong. Please try again.';
+      },
+    );
 
     notifyListeners();
   }
@@ -102,26 +96,20 @@ class ProfileController extends ChangeNotifier with ErrorMessageMixin {
 
     var success = false;
 
-    try {
-      final result = await _saveProfile(updatedProfile);
+    final result = await _saveProfile(updatedProfile);
 
-      result.when(
-        ok: (savedProfile) {
-          _profile = savedProfile;
-          _saveStatus = AsyncStatus.success;
-          success = true;
-        },
-        err: (failure) {
-          debugPrint('Profile save failed: $failure');
-          _saveStatus = AsyncStatus.failure;
-          errorMessage = 'Something went wrong. Please try again.';
-        },
-      );
-    } catch (error) {
-      debugPrint('Profile save threw an exception: $error');
-      _saveStatus = AsyncStatus.failure;
-      errorMessage = 'Something went wrong. Please try again.';
-    }
+    result.when(
+      ok: (savedProfile) {
+        _profile = savedProfile;
+        _saveStatus = AsyncStatus.success;
+        success = true;
+      },
+      err: (failure) {
+        debugPrint('Profile save failed: $failure');
+        _saveStatus = AsyncStatus.failure;
+        errorMessage = 'Something went wrong. Please try again.';
+      },
+    );
 
     notifyListeners();
     return success;
@@ -138,26 +126,20 @@ class ProfileController extends ChangeNotifier with ErrorMessageMixin {
 
     var success = false;
 
-    try {
-      final result = await _clearUserData();
+    final result = await _clearUserData();
 
-      result.when(
-        ok: (_) {
-          _profile = null;
-          _clearStatus = AsyncStatus.success;
-          success = true;
-        },
-        err: (failure) {
-          debugPrint('Profile clear failed: $failure');
-          _clearStatus = AsyncStatus.failure;
-          errorMessage = 'Could not clear data. Please try again.';
-        },
-      );
-    } catch (error) {
-      debugPrint('Profile clear threw an exception: $error');
-      _clearStatus = AsyncStatus.failure;
-      errorMessage = 'Could not clear data. Please try again.';
-    }
+    result.when(
+      ok: (_) {
+        _profile = null;
+        _clearStatus = AsyncStatus.success;
+        success = true;
+      },
+      err: (failure) {
+        debugPrint('Profile clear failed: $failure');
+        _clearStatus = AsyncStatus.failure;
+        errorMessage = 'Could not clear data. Please try again.';
+      },
+    );
 
     notifyListeners();
     return success;

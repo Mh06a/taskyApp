@@ -70,25 +70,19 @@ class SettingsController extends ChangeNotifier with ErrorMessageMixin {
     clearError();
     notifyListeners();
 
-    try {
-      final result = await _getSettings();
+    final result = await _getSettings();
 
-      result.when(
-        ok: (settings) {
-          _settings = settings;
-          _loadStatus = AsyncStatus.success;
-        },
-        err: (failure) {
-          debugPrint('Settings load failed: $failure');
-          _loadStatus = AsyncStatus.failure;
-          errorMessage = 'Something went wrong. Please try again.';
-        },
-      );
-    } catch (error) {
-      debugPrint('Settings load threw an exception: $error');
-      _loadStatus = AsyncStatus.failure;
-      errorMessage = 'Something went wrong. Please try again.';
-    }
+    result.when(
+      ok: (settings) {
+        _settings = settings;
+        _loadStatus = AsyncStatus.success;
+      },
+      err: (failure) {
+        debugPrint('Settings load failed: $failure');
+        _loadStatus = AsyncStatus.failure;
+        errorMessage = 'Something went wrong. Please try again.';
+      },
+    );
 
     notifyListeners();
   }
@@ -138,27 +132,20 @@ class SettingsController extends ChangeNotifier with ErrorMessageMixin {
 
     var success = false;
 
-    try {
-      final result = await _saveSettings(updated);
+    final result = await _saveSettings(updated);
 
-      result.when(
-        ok: (_) {
-          _saveStatus = AsyncStatus.success;
-          success = true;
-        },
-        err: (failure) {
-          debugPrint('Settings save failed: $failure');
-          _settings = previous;
-          _saveStatus = AsyncStatus.failure;
-          errorMessage = 'Something went wrong. Please try again.';
-        },
-      );
-    } catch (error) {
-      debugPrint('Settings save threw an exception: $error');
-      _settings = previous;
-      _saveStatus = AsyncStatus.failure;
-      errorMessage = 'Something went wrong. Please try again.';
-    }
+    result.when(
+      ok: (_) {
+        _saveStatus = AsyncStatus.success;
+        success = true;
+      },
+      err: (failure) {
+        debugPrint('Settings save failed: $failure');
+        _settings = previous;
+        _saveStatus = AsyncStatus.failure;
+        errorMessage = 'Something went wrong. Please try again.';
+      },
+    );
 
     notifyListeners();
     return success;
