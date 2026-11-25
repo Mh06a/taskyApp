@@ -1,16 +1,41 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:tasky/core/utils/result.dart';
+import 'package:tasky/domain/repositories/onboarding_repository.dart';
+import 'package:tasky/domain/usecases/onboarding/complete_onboarding.dart';
+import 'package:tasky/presentation/controllers/onboarding_controller.dart';
 import 'package:tasky/presentation/screens/onboarding/onboarding_screen.dart';
+
+class FakeOnboardingRepo implements OnboardingRepository {
+  bool completed = false;
+  @override
+  Result<bool> isCompleted() => Ok(completed);
+  @override
+  Future<Result<void>> setCompleted() async {
+    completed = true;
+    return const Ok(null);
+  }
+}
 
 void main() {
   group('OnboardingScreen', () {
     testWidgets('displays the first onboarding page', (
         WidgetTester tester,
         ) async {
+      final repo = FakeOnboardingRepo();
+      final completeOnboarding = CompleteOnboarding(repo);
+
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        ScreenUtilInit(
+          designSize: const Size(390, 844),
+          builder: (context, child) => MaterialApp(
+            home: ChangeNotifierProvider<OnboardingController>(
+              create: (_) => OnboardingController(completeOnboarding: completeOnboarding),
+              child: const OnboardingScreen(),
+            ),
+          ),
         ),
       );
 
@@ -19,15 +44,24 @@ void main() {
         findsOneWidget,
       );
 
-      expect(find.text('Skip intro'), findsOneWidget);
+      expect(find.text('Skip'), findsOneWidget);
     });
 
     testWidgets('moves to the next onboarding page', (
         WidgetTester tester,
         ) async {
+      final repo = FakeOnboardingRepo();
+      final completeOnboarding = CompleteOnboarding(repo);
+
       await tester.pumpWidget(
-        const MaterialApp(
-          home: OnboardingScreen(),
+        ScreenUtilInit(
+          designSize: const Size(390, 844),
+          builder: (context, child) => MaterialApp(
+            home: ChangeNotifierProvider<OnboardingController>(
+              create: (_) => OnboardingController(completeOnboarding: completeOnboarding),
+              child: const OnboardingScreen(),
+            ),
+          ),
         ),
       );
 
