@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -11,6 +12,14 @@ class AvatarStorageDataSource {
     '.png',
     '.webp',
   };
+
+  @visibleForTesting
+  static bool isValidFileName(String fileName) {
+    if (fileName.isEmpty) return false;
+    if (fileName == '.' || fileName == '..') return false;
+    if (fileName != p.basename(fileName)) return false;
+    return true;
+  }
 
   Future<Directory> _getAvatarDirectory() async {
     final appDirectory = await getApplicationSupportDirectory();
@@ -46,11 +55,16 @@ class AvatarStorageDataSource {
 
 
   Future<String?> resolve(String fileName) async {
-    if (fileName.isEmpty || fileName != p.basename(fileName)) return null;
+    if (!isValidFileName(fileName)) return null;
 
     final avatarDirectory = await _getAvatarDirectory();
+    final joinedPath = p.join(avatarDirectory.path, fileName);
 
-    return p.join(avatarDirectory.path, fileName);
+    if (!p.isWithin(avatarDirectory.path, joinedPath)) {
+      return null;
+    }
+
+    return joinedPath;
   }
 
 
