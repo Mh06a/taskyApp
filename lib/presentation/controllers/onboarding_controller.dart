@@ -33,8 +33,11 @@ class OnboardingController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _completeOnboarding.call();
-      return true;
+      final result = await _completeOnboarding.call();
+      return result.when(
+        ok: (_) => true,
+        err: (_) => false,
+      );
     } catch (error) {
       debugPrint('Onboarding completion failed: $error');
       return false;
