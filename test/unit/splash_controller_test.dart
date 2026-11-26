@@ -56,6 +56,8 @@ class FakeProfileRepo implements ProfileRepository {
   Future<Result<bool>> saveProfile(UserProfile profile) async => const Ok(true);
   @override
   Future<Result<bool>> clearProfile() async => const Ok(true);
+  @override
+  Future<Result<void>> clearUserData() async => const Ok(null);
 }
 
 class FakeTasksRepo implements TasksRepository {

@@ -7,4 +7,6 @@ abstract interface class ProfileRepository {
   Future<Result<void>> saveProfile(UserProfile profile);
 
   Future<Result<void>> clearProfile();
+
+  Future<Result<void>> clearUserData();
 }

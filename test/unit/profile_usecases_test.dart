@@ -23,6 +23,12 @@ class FakeProfileRepository implements ProfileRepository {
     profile = null;
     return const Ok(true);
   }
+
+  @override
+  Future<Result<void>> clearUserData() async {
+    profile = null;
+    return const Ok(null);
+  }
 }
 
 class FakeAvatarRepository implements AvatarRepository {

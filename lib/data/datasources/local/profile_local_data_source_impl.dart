@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:tasky/data/constants/profile_table.dart';
+import 'package:tasky/data/constants/tasks_table.dart';
 import 'package:tasky/core/errors/exceptions.dart';
 import 'package:tasky/data/datasources/local/avatar_storage_data_source.dart';
 import 'package:tasky/data/datasources/local/profile_local_data_source.dart';
@@ -92,6 +93,47 @@ final class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
       await _avatarStorage.deleteIfOwned(avatarPath);
     } on FileSystemException {
       // Profile is already deleted.
+      // Avatar cleanup is best-effort.
+    }
+  }
+
+  @override
+  Future<void> clearUserData() async {
+    final db = await _databaseService.database;
+
+    // Read avatar path before deleting rows
+    final rows = await db.query(
+      ProfileTable.name,
+      where: '${ProfileTable.id} = ?',
+      whereArgs: [ProfileTable.defaultId],
+      limit: 1,
+    );
+
+    String? avatarPath;
+    if (rows.isNotEmpty) {
+      final row = rows.first;
+      final avatarFileName = row[ProfileTable.avatarFile];
+      avatarPath = avatarFileName is String
+          ? await _avatarStorage.resolve(avatarFileName)
+          : null;
+    }
+
+    // Delete tasks table and profile table inside db.transaction atomically
+    await db.transaction((txn) async {
+      await txn.delete(TasksTable.name);
+      await txn.delete(
+        ProfileTable.name,
+        where: '${ProfileTable.id} = ?',
+        whereArgs: [ProfileTable.defaultId],
+      );
+    });
+
+    // Delete the avatar FILE only after the transaction commits, best-effort
+    if (avatarPath == null) return;
+
+    try {
+      await _avatarStorage.deleteIfOwned(avatarPath);
+    } on FileSystemException {
       // Avatar cleanup is best-effort.
     }
   }

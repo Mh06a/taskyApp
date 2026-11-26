@@ -2,7 +2,7 @@ import 'package:tasky/core/utils/result.dart';
 import 'package:tasky/domain/repositories/profile_repository.dart';
 import 'package:tasky/domain/repositories/tasks_repository.dart';
 
-/// Deletes all tasks and the profile. App settings are kept on purpose.
+/// Deletes all tasks and the profile atomically in a database transaction. App settings are kept on purpose.
 final class ClearUserData {
   const ClearUserData({
     required TasksRepository tasksRepository,
@@ -10,12 +10,11 @@ final class ClearUserData {
   }) : _tasks = tasksRepository,
        _profile = profileRepository;
 
+  // ignore: unused_field
   final TasksRepository _tasks;
   final ProfileRepository _profile;
 
   Future<Result<void>> call() async {
-    final tasksResult = await _tasks.deleteAllTasks();
-    if (tasksResult is Err<void>) return tasksResult;
-    return _profile.clearProfile();
+    return _profile.clearUserData();
   }
 }

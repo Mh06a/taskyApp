@@ -26,4 +26,9 @@ final class ProfileRepositoryImpl implements ProfileRepository {
   Future<Result<void>> clearProfile() {
     return guard<void>(_dataSource.clearProfile);
   }
+
+  @override
+  Future<Result<void>> clearUserData() {
+    return guard<void>(_dataSource.clearUserData);
+  }
 }

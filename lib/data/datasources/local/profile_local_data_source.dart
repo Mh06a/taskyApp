@@ -6,4 +6,6 @@ abstract interface class ProfileLocalDataSource {
   Future<void> saveProfile(UserProfileModel profile);
 
   Future<void> clearProfile();
+
+  Future<void> clearUserData();
 }
