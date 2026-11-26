@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tasky/core/enums/async_status.dart';
 import 'package:tasky/presentation/controllers/task_action_result.dart';
@@ -19,15 +20,19 @@ import 'package:tasky/core/errors/failure.dart';
 class FakeTasksRepository implements TasksRepository {
   List<Task> tasks = [];
   bool fail = false;
+  Future<Result<List<Task>>> Function()? customGetTasks;
+  Future<Result<void>> Function(Task)? customAddTask;
 
   @override
   Future<Result<List<Task>>> getTasks() async {
+    if (customGetTasks != null) return customGetTasks!();
     if (fail) return Err(StorageFailure());
     return Ok(tasks);
   }
 
   @override
   Future<Result<void>> addTask(Task task) async {
+    if (customAddTask != null) return customAddTask!(task);
     tasks.add(task);
     return const Ok(null);
   }
@@ -117,6 +122,37 @@ void main() {
 
       await controller.restoreTask(task);
       expect(controller.tasks.length, 1);
+    });
+
+    test('clearLocalTasks ignores a loadTasks result that arrives afterwards', () async {
+      final completer = Completer<Result<List<Task>>>();
+      repo.customGetTasks = () => completer.future;
+
+      final loadFuture = controller.loadTasks();
+
+      repo.tasks = [Task(id: 'existing', title: 'Existing', createdAt: now)];
+      controller.clearLocalTasks();
+      expect(controller.tasks.isEmpty, true);
+
+      completer.complete(Ok([Task(id: 'stale', title: 'Stale', createdAt: now)]));
+      await loadFuture;
+
+      expect(controller.tasks.isEmpty, true);
+    });
+
+    test('hasPendingOperations is true while an add is awaiting and false after', () async {
+      final completer = Completer<Result<void>>();
+      repo.customAddTask = (_) => completer.future;
+
+      expect(controller.hasPendingOperations, false);
+
+      final addFuture = controller.addNewTask(title: 'New Task');
+      expect(controller.hasPendingOperations, true);
+
+      completer.complete(const Ok(null));
+      await addFuture;
+
+      expect(controller.hasPendingOperations, false);
     });
   });
 }
