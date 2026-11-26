@@ -174,11 +174,21 @@ class ProfileScreen extends StatelessWidget {
 
     if (!confirmed || !context.mounted) return;
 
+    final tasksController = context.read<TasksController>();
+
+    if (tasksController.hasPendingOperations) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please wait a moment and try again.'),
+        ),
+      );
+      return;
+    }
+
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
     final profileController = context.read<ProfileController>();
-    final tasksController = context.read<TasksController>();
 
     final cleared = await profileController.clearUserData();
 

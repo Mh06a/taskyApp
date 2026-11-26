@@ -64,6 +64,7 @@ class TasksController extends ChangeNotifier with ErrorMessageMixin {
   AsyncStatus get loadStatus => _loadStatus;
   bool get isLoading => _loadStatus == AsyncStatus.loading;
   bool get isSaving => _pendingSaves > 0;
+  bool get hasPendingOperations => _pendingSaves > 0 || _busyTaskIds.isNotEmpty;
   bool isTaskBusy(String id) => _busyTaskIds.contains(id);
   DateTime get currentTime => _clock();
 
